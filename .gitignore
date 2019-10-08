@@ -1,4 +1,6 @@
 # Prerequisites
+*.in
+*.swp
 *.d
 
 # Compiled Object files
@@ -12,7 +14,6 @@
 *.pch
 
 # Compiled Dynamic libraries
-*.so
 *.dylib
 *.dll
 
@@ -28,5 +29,26 @@
 
 # Executables
 *.exe
-*.out
 *.app
+
+*.xml
+*.iml
+*.pyc
+
+.idea
+__pycahe__
+
+CMakeFiles
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+.ipynb_checkpoints
+
+
+*.ipynb
+wardsexp.ipynb
