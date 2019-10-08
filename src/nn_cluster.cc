@@ -193,30 +193,27 @@ nnCluster::~nnCluster() {
 }
 
 double nnCluster::compute_max_dist(const double * points, const int n, const int d) {
-	double * max_pt = (double *) malloc(d * sizeof(double));
-	double * min_pt = (double *) malloc(d * sizeof(double));
+	std::vector<double> max_pt(d);
+	std::vector<double> min_pt(d);
 
 	for (int i = 0; i < d; ++i) {
-		* (max_pt + i) = std::numeric_limits<double>::min();
-		* (min_pt + i) = std::numeric_limits<double>::max();
+		max_pt[i] = std::numeric_limits<double>::min();
+		min_pt[i] = std::numeric_limits<double>::max();
  	}
 
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < d; j++) {
-			* (max_pt + j) = std::max(*(points + i * d + j), *(max_pt + j));
-			* (min_pt + j) = std::min(*(points + i * d + j), *(min_pt + j));
+			max_pt[j] = std::max(points[i][j], max_pt[j]);
+			min_pt[j] = std::min(points[i][j], min_pt[j]);
 		}
 	}
 
 	double dist = 0.0;
 	double x, y;
 	for (int i = 0; i < d; ++i) {
-		x = * (max_pt + i);
-		y = * (min_pt + i);
-		dist += (x - y) * (x - y) + (x - y) * (x - y);
+		x = max_pt[i];
+		y = min_pt[i];
+		dist += (x - y) * (x - y);
 	}
-
-	free(max_pt);
-	free(min_pt);
 	return dist;
 }
