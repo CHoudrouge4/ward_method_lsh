@@ -4,8 +4,6 @@
 */
 
 #include <iostream>
-#include "flann/flann.hpp"
-#include "flann/io/hdf5.h"
 #include <fstream>
 #include <stdlib.h>
 #include <vector>

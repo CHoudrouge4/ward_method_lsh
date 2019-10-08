@@ -1,7 +1,6 @@
 #include "hierarchical_clustering.h"
 #include <fstream>
 #include <cmath>
-#include <dlfcn.h>
 #include <limits>
 #include <stdlib.h>
 #include <tuple>
@@ -11,7 +10,6 @@
 /**
 * TODO:
 *   Remove the log_base_ funstion
-*   Remove CGAL
 *   check the precision of fpa
 *   make unchecked a field
 *   don't use tuples if possible
@@ -23,7 +21,7 @@
 
 typedef std::pair<int, int> pair_int;
 
-inline std::string toString(const std::pair< size_t, size_t >& data) {
+inline std::string toString(const std::pair< size_t, size_t> & data) {
     std::ostringstream str;
     str << data.first << "," << data.second << ";";
     return str.str();
@@ -33,7 +31,7 @@ inline std::string toString(const std::pair< size_t, size_t >& data) {
 * Print a c array initially creted to help in the dubugging,
 * need to move it to a seperate file
 */
-void print_array (float * array, int n, int m, std::string msg) {
+void print_array (double * array, int n, int m, std::string msg) {
   std::cout << msg << ' ';
   std::cout << "[" << ' ';
   for (int i = 0; i < n; ++i) {
@@ -47,30 +45,22 @@ void print_array (float * array, int n, int m, std::string msg) {
 }
 
 // remove this one
-inline float log_base_(double num, double base) {
+inline double log_base_(double num, double base) {
   return log(num)/ log(base);
 }
 
-extern "C" typedef double (*func_t)(int n, int d, void * array);
-
-hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, float epsilon_, float gamma_, int tree_number, int visited_leaf):
+hierarchical_clustering::hierarchical_clustering(std::vector<double> &data, int n, int d, double epsilon_, double gamma_, int tree_number, int visited_leaf):
                                                                   nnc(data, n, d, epsilon_, gamma_, tree_number, visited_leaf),
                                                                   dimension(d),
                                                                   size(n),
                                                                   epsilon(epsilon_),
                                                                   gamma(gamma_) {
 
-  //void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
-  //func_t func = (func_t)dlsym( lib, "radius_min_circle");
-  //double radius = func(n, d, (void *) data);
   //max_dist = 4 * radius;
   max_dist = nnc.compute_max_dist(data, n, d);
-  //std::cout << "done computing max distance" << std::endl;
-  //std::cout << max_dist << ' ' <<  << std::endl;
-  unmerged_clusters.max_load_factor(std::numeric_limits<float>::infinity());
+  unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
-  //std::cout << "done computing min distance" << std::endl;
-  beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / float
+  beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / double
   output.reserve(n);
   to_erase.reserve(n);
 }
@@ -81,18 +71,17 @@ hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, flo
 * new_centroid = ((size_a * mu_a) + (size_b * mu_b))/(size_a + size_b).
 *
 */
-inline float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, int size_b) {
-  float den = size_a + size_b;
-  float coeff_a = size_a / den; // make sure if this is efficient
-  float coeff_b = size_b / den;
-  float * res = (float *) malloc(dimension * sizeof(float));
-  for (int i = 0; i < dimension; ++i) {
-    *(res + i) = coeff_a * ( * (mu_a + i)) + coeff_b * ( * (mu_b + i));
-  }
+inline std::vector<double> hierarchical_clustering::merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b) {
+  double den = size_a + size_b;
+  double coeff_a = size_a / den; // make sure if this is efficient
+  double coeff_b = size_b / den;
+  std::vector<double> res(dimension);
+  for (int i = 0; i < dimension; ++i)
+    res[i] = coeff_a * mu_a[i] + coeff_b * mu_b[i];
   return res;
 }
 
-std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, float merge_value) {
+std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, double merge_value) {
   std::unordered_set <pair_int> unchecked; // this one should be placed maybe in different place, maybe it should be in the fields
   for (auto&& p : mp) {
     if(existed[p]) {
@@ -102,11 +91,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       int u_weight = p.w;
       if(u_weight == 0) continue;
 
-      //float * res_ = (float *) malloc(dimension * sizeof(float));
-      float * res_ = nnc.get_point(u, u_weight);
-      //memcpy(res_, tmp, dimension * sizeof(float));
+      //double * res_ = (double *) malloc(dimension * sizeof(double));
+      double * res_ = nnc.get_point(u, u_weight);
+      //memcpy(res_, tmp, dimension * sizeof(double));
 
-      flann::Matrix<float> res(res_, 1, dimension);
+      flann::Matrix<double> res(res_, 1, dimension);
       nnc.delete_cluster(u, u_weight);
 
       //print_array(res_, 1, dimension, "u coordinates before query ");
@@ -114,10 +103,10 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       auto t = nnc.query(res, u_weight);
       //std::cout << "t: " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << std::endl;
 
-      float dist = std::get<1>(t); // getting the distance
+      double dist = std::get<1>(t); // getting the distance
       int t_weight = std::get<2>(t);
 
-      flann::Matrix<float> merged_cluster; // move to the outside later on
+      flann::Matrix<double> merged_cluster; // move to the outside later on
       int merged_weight;
       to_erase.push_back({u, u_weight});
 
@@ -125,12 +114,12 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         ok = true;
         //print_array(res_, 1, dimension, "u coordinates");
         //std::cout << "before NN " << std::get<0>(t) << " " << t_weight << std::endl;
-        float * nn_pt = nnc.get_point(std::get<0>(t), t_weight);
+        double * nn_pt = nnc.get_point(std::get<0>(t), t_weight);
         //print_array(nn_pt, 1, dimension, "NN coords");
 
         // merging phase
-        float * merged_cluster_ = merge(res_, nn_pt, u_weight, t_weight);
-        merged_cluster = flann::Matrix<float>(merged_cluster_, 1, dimension);
+        double * merged_cluster_ = merge(res_, nn_pt, u_weight, t_weight);
+        merged_cluster = flann::Matrix<double>(merged_cluster_, 1, dimension);
         //print_array(merged_cluster_, 1, dimension, "merged");
 
         merged_weight = u_weight + t_weight;
@@ -164,11 +153,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         t_weight = std::get<2>(t);
 
         if(t_weight <= 0 || std::get<0>(t) < 0) break;
-        float * nnn_pt = nnc.get_point(std::get<0>(t), t_weight);
+        double * nnn_pt = nnc.get_point(std::get<0>(t), t_weight);
         if(nnn_pt == nullptr) break;
         if(dist < merge_value) {
           res_ = merged_cluster_;
-          res = merged_cluster;
+          res  = merged_cluster;
           flag = true;
         }
       }
@@ -205,8 +194,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 }
 
 void hierarchical_clustering::build_hierarchy() {
-
-  float merge_value;
+  double merge_value;
   for (int i = 0; i < beta; ++i) {
     merge_value = pow(1 + epsilon, i); // find an efficient one
     //std::cout << "merge value " << merge_value << std::endl;

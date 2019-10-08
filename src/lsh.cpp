@@ -15,7 +15,7 @@ using std::max;
 using std::min;
 using std::pair;
 using std::vector;
-    
+
 double LSHDataStructure::SqrDist(const vector<double>& p1,
                                  const vector<double>& p2) {
   double d = 0;
@@ -58,7 +58,7 @@ void LSHDataStructure::InsertPoint(int id, const vector<double> &coordinates) {
     }
   }
 }
-    
+
 void LSHDataStructure::RemovePoint(int id){
     map<int,vector<double>>::iterator it;
     it = points_.find(id);
@@ -69,7 +69,7 @@ void LSHDataStructure::RemovePoint(int id){
     it_to_bins = points_to_bins_.find(id);
 
     vector < int > proj =  it_to_bins->second;
-    
+
     for(int i = 0; i < bins_collection_.size(); i++){
 	int bin = proj[i];
 	map<int,vector<int>>::iterator it_bins;
@@ -85,7 +85,7 @@ void LSHDataStructure::RemovePoint(int id){
     }
 }
 
-    
+
 pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates,
                                     int running_time) {
   // 1. Get the projection: i.e. a list of bins b_1,...,b_nb_bins
@@ -141,7 +141,7 @@ LSHDataStructure::LSHDataStructure(int bucket_size, int nb_bins1,
 
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::default_random_engine generator (seed);
-  
+
   for (int i = 0; i < nb_bins_; i++) {
       srand (time(NULL));
       int offset = rand() % r_ +1;
@@ -157,36 +157,36 @@ LSHDataStructure::LSHDataStructure(int bucket_size, int nb_bins1,
 }
 
 
-int main (){
-
-    LSHDataStructure L = LSHDataStructure(5,5,3);
-
-    vector < double > a = vector < double > (3);
-    vector < double > b = vector < double > (3);
-    vector < double > c = vector < double > (3);
-    vector < double > d = vector < double > (3);
-    vector < double > e = vector < double > (3);
-
-    for (int i = 0; i < 3 ; i++){
-	a[i] = i;
-	b[i] = i*i;
-	c[i] = i*i*i;
-	d[i] = i*i*i*i;
-	e[i] = i*i*i*i*i;
-    }
-        
-    L.InsertPoint(0, a);
-    L.InsertPoint(1, b);
-    L.InsertPoint(2, c);
-    L.InsertPoint(3, d);
-    L.InsertPoint(4, e);
-
-    L.Print();
-
-    L.QueryPoint(b,100);
-    
-    L.RemovePoint(3);
-    L.RemovePoint(2);
-    L.Print();
-
-}
+// int main (){
+//
+//     LSHDataStructure L = LSHDataStructure(5,5,3);
+//
+//     vector < double > a = vector < double > (3);
+//     vector < double > b = vector < double > (3);
+//     vector < double > c = vector < double > (3);
+//     vector < double > d = vector < double > (3);
+//     vector < double > e = vector < double > (3);
+//
+//     for (int i = 0; i < 3 ; i++){
+// 	a[i] = i;
+// 	b[i] = i*i;
+// 	c[i] = i*i*i;
+// 	d[i] = i*i*i*i;
+// 	e[i] = i*i*i*i*i;
+//     }
+//
+//     L.InsertPoint(0, a);
+//     L.InsertPoint(1, b);
+//     L.InsertPoint(2, c);
+//     L.InsertPoint(3, d);
+//     L.InsertPoint(4, e);
+//
+//     L.Print();
+//
+//     L.QueryPoint(b,100);
+//
+//     L.RemovePoint(3);
+//     L.RemovePoint(2);
+//     L.Print();
+//
+// }

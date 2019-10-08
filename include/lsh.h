@@ -16,7 +16,6 @@
 //   2. look at the elements in these bins, for a total of at most running_time
 //      elements. Output the one that is the closest.
 
-
 #include <chrono>
 #include <algorithm>
 #include <cmath>
@@ -27,14 +26,11 @@
 #include <random>
 #include <vector>
 
-
-
 using std::map;
 using std::max;
 using std::min;
 using std::pair;
 using std::vector;
-
 
 class LSHDataStructure {
  public:
@@ -44,7 +40,7 @@ class LSHDataStructure {
   // return the ID (i.e.:the id specified upon insertion)
   // of the elements in the DS that is the ANN
   // Function makes at most running_time comparisons
-    pair<int,double> QueryPoint(const vector<double> &coordinates, int running_time);
+  pair<int,double> QueryPoint(const vector<double> &coordinates, int running_time);
 
   // TODO(cohenaddad):
   // remove the point that has been inserted with this id
@@ -91,6 +87,3 @@ class LSHDataStructure {
 // LSHDataStructure lsh_(
 //    15, static_cast<int>(std::pow(k, 0.33) * log2(input.size())),
 //    input[0].size());
-
-
-
