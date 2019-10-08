@@ -2,7 +2,6 @@
 * This file is for testing
 *
 */
-
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -311,21 +310,3 @@ int main () {
   //test_news_group_several_sizes();
 	return 0;
 }
-
-/**
-flann::Matrix<float> POINTS(points, n, d);
-const flann::AutotunedIndexParams params(0.8);
-std::vector<flann::AutotunedIndex<flann::L2<float>> *> nn_data_structures;
-flann::AutotunedIndex<flann::L2<float>> * ds = new flann::AutotunedIndex<flann::L2<float>> (POINTS, params);
-nn_data_structures.push_back(ds);
-nn_data_structures[0]->buildIndex();
-
-float * new_cluster_ = generate_random_matrix(1, d);
-flann::Matrix<float> q (new_cluster_, 1, d);
-std::vector<std::vector<float>> dist;
-std::vector<std::vector<size_t>> idx;
-
-nn_data_structures[0]->knnSearch(q, idx, dist, 1, flann::SearchParams(32));
-auto p = nn_data_structures[0]->getPoint(0);
-std::cout << p[0] << std::endl;
-**/

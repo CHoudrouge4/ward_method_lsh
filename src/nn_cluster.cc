@@ -69,6 +69,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
   int res_index = 0;
   for (int i = 0; i < number_of_data_structure; ++i) {
     if (!build[i] || sizes[i] <= 0) continue;
+		// fix
 		nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(visited_leaf));
 		if(indices.size() == 0) continue;
 		if(indices[0].size() == 0) continue;
@@ -93,14 +94,19 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
   return std::make_tuple(res, min_distance, cluster_weight[{res_index, res}]);
 }
 
+/**
+* TO CHANGE
+*/
 int nnCluster::add_cluster(const std::vector<double> &query, int cluster_size) {
       int idx = floor(log_base(cluster_size, 1 + epsilon));
 			//assert(idx < number_of_data_structure);
 			//assert(idx >= 0);
 		  if (!build[idx]) {
+				//
         nn_data_structures[idx].buildIndex(cluster);
         build[idx] = true;
       } else {
+				//
         nn_data_structures[idx].addPoints(cluster);
       }
 			sizes[idx] = sizes[idx] + 1;
@@ -114,6 +120,10 @@ int nnCluster::add_cluster(const std::vector<double> &cluster, int cluster_size,
 	return idx;
 }
 
+
+/**
+*  TO CHECK
+*/
 std::tuple<int, double, int> nnCluster::add_new_cluster(const std::vector<double> &cluster, const int cluster_size) {
 	int idx = add_cluster(cluster, cluster_size);
 	auto t = query(cluster, cluster_size, true);
@@ -122,6 +132,10 @@ std::tuple<int, double, int> nnCluster::add_new_cluster(const std::vector<double
 	return {std::get<0>(t), std::get<1>(t), cluster_size};
 }
 
+
+/**
+* TO CHANGE
+*/
 void nnCluster::delete_cluster(int idx, int size) {
   int i = (int) floor(log_base(size, 1 + epsilon));// I think it is wrong
 	//assert(i >= 0);
@@ -130,6 +144,10 @@ void nnCluster::delete_cluster(int idx, int size) {
 	sizes[i] = sizes[i] - 1;
 }
 
+
+/**
+* TO CHANGE OR NO LONGER RELEVANT
+*/
 double * nnCluster::get_point(int idx, int size) {
 	int i = (int) floor(log_base(size, 1 + epsilon));
 //	std::cout << idx << ' ' << size << std::endl;
@@ -142,6 +160,9 @@ double * nnCluster::get_point(int idx, int size) {
 	}
 }
 
+/**
+* TO CHANGE
+*/
 double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed) {
   double min_dis = std::numeric_limits<double>::max();
   for (int i = 0; i < size; ++i) {
@@ -167,6 +188,7 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
   return min_dis;
 }
 
+// GOOD
 int nnCluster::get_number_of_data_structures() const {
   return nn_data_structures.size();
 }
@@ -184,12 +206,6 @@ void nnCluster::update_dict(int new_idx, int new_weight, int old_idx, int old_we
 
 void nnCluster::update_size(int ds_index, int new_index, int size) {
 	cluster_weight[{ds_index, new_index}] = size;
-}
-
-nnCluster::~nnCluster() {
-  delete [] points.ptr();
-	// for(size_t i = 0; i < nn_data_structures.size(); ++i)
-	// 	delete nn_data_structures[i];
 }
 
 double nnCluster::compute_max_dist(const double * points, const int n, const int d) {

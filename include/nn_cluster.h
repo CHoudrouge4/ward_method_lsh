@@ -90,7 +90,6 @@ public:
 
   void update_size(int ds_index, int new_index, int size);
 
-  ~nnCluster();
 private:
   std::vector<std::vector<double>> points; // this stores the initial data points
   // size is the number of input points, number of data structures, number of visted leaves

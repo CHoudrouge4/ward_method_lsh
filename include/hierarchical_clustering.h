@@ -37,7 +37,7 @@ private:
   std::vector<pair_int> to_erase;
 
   inline std::vector<double> merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b);
-  
+
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, double merge_value);
 
 public:
