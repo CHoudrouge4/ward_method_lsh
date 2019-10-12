@@ -12,7 +12,6 @@
 *  	find a way to get the right number of data structures
 *   Add memo for the size to index
 */
-
 template <class T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 	if(v.size() == 0) {
@@ -45,6 +44,7 @@ nnCluster::nnCluster(std::vector<vector<double>> &points_, int n, int d, double 
 	// insert the points
 	for (size_t i = 0; i < points_.size(); ++i) {
 		index.InsertPoint(i, points_[i]);
+		cluster_weight[{0, i}] = 1;
 	}
 
 	build = std::vector<bool>(number_of_data_structure, false);
@@ -126,27 +126,32 @@ std::vector<double> nnCluster::get_point(int idx) {
 	return points[idx];
 }
 
+// good + need review
 double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed) {
   double min_dis = std::numeric_limits<double>::max();
-  for (int i = 0; i < size; ++i) {
-      auto res_ = get_point(i);
-      delete_cluster(i, 1);
-      auto t = query(res_, 1);
-			std::cout << std::get<0>(t) << ' ' << std::get<1>(t) << std::endl;
-			min_dis = std::min(std::get<1>(t), min_dis);
-			add_cluster(res_, 1, i);
-			cluster_weight[{0, i}] = 1;
-			dict[{i, 1}] = {i, 1};
+	for (int i = 0; i < size; ++i) {
+  	auto res_ = get_point(i);
+    delete_cluster(i, 1);
+    auto t = query(res_, 1);
 
-			t = query(res_, 1, i);
-      dict[{std::get<0>(t), 1}] = {i, 1};
-			cluster_weight[{0, std::get<0>(t)}] = 1;
+		std::cout << std::get<0>(t) << ' ' << std::get<1>(t) << std::endl;
+		min_dis = std::min(std::get<1>(t), min_dis);
 
-			unmerged_clusters.insert({std::get<0>(t), 1});
-			existed[{std::get<0>(t), cluster_weight[{0, std::get<0>(t)}]}] = true;
-		//std::cout << "( " << std::get<0>(t) << ' ' <<  cluster_weight[{0, std::get<0>(t)}] << " ) " << std::endl;
+		add_cluster(res_, 1, i);
+
+		dict[{i, 1}] = {i, 1};
+
+		t = query(res_, 1, i);
+
+		// I think I don't need these anymore.
+
+		dict[{std::get<0>(t), 1}] = {i, 1};
+		cluster_weight[{0, std::get<0>(t)}] = 1;
+
+		unmerged_clusters.insert({std::get<0>(t), 1});
+		existed[{std::get<0>(t), cluster_weight[{0, std::get<0>(t)}]}] = true;
   }
-  return min_dis;
+  return min_dis + min_dis;
 }
 
 // GOOD

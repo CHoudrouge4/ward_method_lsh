@@ -25,7 +25,6 @@ void test_nn_cluster() {
   std::unordered_set<pair_int> unmerged_clusters;
   std::unordered_map<pair_int, bool, pairhash> existed;
   double dd = nnc.compute_min_dist(unmerged_clusters, existed);
-  std::cout << dd << std::endl;
 }
 
 int main() {
