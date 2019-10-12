@@ -1,5 +1,3 @@
-
-
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -9,12 +7,12 @@
 
 #include "lsh.h"
 
-
-using std::map;
-using std::max;
-using std::min;
-using std::pair;
-using std::vector;
+using namespace std;
+// using std::map;
+// using std::max;
+// using std::min;
+// using std::pair;
+// using std::vector;
 
 double LSHDataStructure::SqrDist(const vector<double>& p1,
                                  const vector<double>& p2) {

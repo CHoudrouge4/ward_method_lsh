@@ -11,5 +11,3 @@ file(GLOB SOURCES "src/*.cc")
 set(CMAKE_CXX_FLAGS " -Wextra -g -O3")
 
 add_executable(wards.exe ${SOURCES})
-
-target_link_libraries(wards.exe)

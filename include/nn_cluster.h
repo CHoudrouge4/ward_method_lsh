@@ -36,8 +36,7 @@ public:
 class nnCluster {
 public:
   // Constructor
-  nnCluster (std::vector<std::vector<double>> * points_, int n, int d, double epsilon_, double gamma_, const size_t &tree_number, int visited_leaf_);
-
+  nnCluster (std::vector<std::vector<double>> &points_, int n, int d, double epsilon_, double gamma_);
   /**
   * This function return a nearest neighbour cluster id, distance to query,
   * and the weight of the nearest neighbour.
@@ -49,13 +48,12 @@ public:
   * cluster size
   *
   */
-  int add_cluster(const std::vector<double> &cluster, const int cluster_size);
+  int add_cluster(const std::vector<double> &cluster, const int cluster_size, int id);
 
   /**
   * This function adds a cluster of a given size to the corresponding data structure
   */
-  int add_cluster(const std::vector<double> &cluster, int cluster_size, int old_index, int new_index );
-
+  int add_cluster(const std::vector<double> &cluster, int cluster_size, int old_index, int new_index, int id);
 
   std::tuple<int, double, int> add_new_cluster(const std::vector<double> &cluster, const int cluster_size);
 
@@ -67,7 +65,7 @@ public:
   /**
   * This function returns the coordinates of the centroid with id = idx, and weight = size
   */
-  double * get_point(int idx, int size);
+  std::vector<double> get_point(int idx);
 
   /**
   * This function returns the number of data structures.
@@ -82,7 +80,7 @@ public:
   /**
   * This function computes and returns an approximation of the maximum distance between all the clusters.
   */
-  double compute_max_dist(const double * points, const int n, const int d);
+  double compute_max_dist(const std::vector<std::vector<double>> points, const int n, const int d);
 
   pair_int get_index(int index, int weight);
 
@@ -93,7 +91,8 @@ public:
 private:
   std::vector<std::vector<double>> points; // this stores the initial data points
   // size is the number of input points, number of data structures, number of visted leaves
-  int size, dimension, number_of_data_structure, visited_leaf;
+  int size, dimension, number_of_data_structure;
+  int running_time = 10;
   // epsilon, gamma initially for appriximating nearest neighbour distance, maximum distance.
   double epsilon, gamma, max_distance;
 
@@ -103,10 +102,6 @@ private:
   std::vector<bool> build;
   // the number of points inside each data structures
   std::vector<int> sizes;
-  // stores the indices returned from the NN query
-  std::vector<std::vector<int>> indices;
-  // stores the distance returned from the NN query
-  std::vector<std::vector<double>> dists;
 
   // computes the ward's distance between two clusters of size_q, dise_b
   inline double distance(int size_a, int size_b, double dist);

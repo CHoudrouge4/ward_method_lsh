@@ -15,6 +15,7 @@
 //   1. find the bins that p would be inserted to
 //   2. look at the elements in these bins, for a total of at most running_time
 //      elements. Output the one that is the closest.
+#pragma once
 
 #include <chrono>
 #include <algorithm>
@@ -26,11 +27,12 @@
 #include <random>
 #include <vector>
 
-using std::map;
-using std::max;
-using std::min;
-using std::pair;
-using std::vector;
+using namespace std;
+// using std::map;
+// using std::max;
+// using std::min;
+// using std::pair;
+// using std::vector;
 
 class LSHDataStructure {
  public:
