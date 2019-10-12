@@ -1,1 +1,1 @@
-# ward_method_lsh
+# Ward's Method with LSH data structure

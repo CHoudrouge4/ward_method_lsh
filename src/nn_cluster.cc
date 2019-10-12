@@ -7,11 +7,10 @@
 #include <sstream>
 
 /**
-* TODO:
-* 	create a function just to query the point itself.
-*  	find a way to get the right number of data structures
-*   Add memo for the size to index
+* TODO: add point by pushing back to the vector
+*
 */
+
 template <class T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 	if(v.size() == 0) {
@@ -35,12 +34,14 @@ inline double nnCluster::distance(int size_a, int size_b, double dist) {
 
 nnCluster::nnCluster(std::vector<vector<double>> &points_, int n, int d, double epsilon_, double gamma_):
 				size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_) {
+
+	number_of_data_structure = (std::max(nb_ds, 1)) * 2 + 5;
 	points = std::vector<std::vector<double>>(points_);
-	//points = points_;
+
 	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
-	number_of_data_structure = (std::max(nb_ds, 1) )* 2 + 5;
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
-	LSHDataStructure index(1000 , 1, d); // change the number of bucket later
+
+	LSHDataStructure index(1000 , 1, d); // change the number of bucket later // parametrise it
 	// insert the points
 	for (size_t i = 0; i < points_.size(); ++i) {
 		index.InsertPoint(i, points_[i]);
@@ -68,8 +69,8 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
   for (int i = 0; i < number_of_data_structure; ++i) {
     if (sizes[i] <= 0) continue;
 
-		auto p = nn_data_structures[i].QueryPoint(query, 10);
-		std::cout << "query return " << p.first << ' ' << p.second << std::endl;
+	 	auto p = nn_data_structures[i].QueryPoint(query, 10);
+
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[{i, p.first}];
 	  double tmp_dist;
@@ -166,7 +167,6 @@ pair_int nnCluster::get_index(int index, int weight) {
 
 // we can later use one weight
 void nnCluster::update_dict(int new_idx, int new_weight, int old_idx, int old_weight) {
-	//std::cout << "new_idx " << new_idx << " new_weight " << new_weight << " old_idx " << old_idx << " old_weight " << old_weight << std::endl;
 	dict[{new_idx, new_weight}] = dict[{old_idx, old_weight}];
 }
 
