@@ -52,7 +52,6 @@ nnCluster::nnCluster(std::vector<vector<double>> &points_, int n, int d, double 
 	nn_data_structures.reserve(number_of_data_structure);
 	sizes[0] = n;
 	nn_data_structures.push_back(index);
-	build[0] = true;
 	for (int i = 1; i < number_of_data_structure; ++i) {
 		LSHDataStructure idx(1000 , 1, d);
 	  nn_data_structures.push_back(idx);
@@ -67,10 +66,10 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
   int res = -1;
   int res_index = 0;
   for (int i = 0; i < number_of_data_structure; ++i) {
-    if (!build[i] || sizes[i] <= 0) continue;
+    if (sizes[i] <= 0) continue;
 
-		auto p = nn_data_structures[i].QueryPoint(query, running_time);
-
+		auto p = nn_data_structures[i].QueryPoint(query, 10);
+		std::cout << "query return " << p.first << ' ' << p.second << std::endl;
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[{i, p.first}];
 	  double tmp_dist;
@@ -118,6 +117,7 @@ int nnCluster::add_cluster(const std::vector<double> &cluster, int cluster_size,
 */
 void nnCluster::delete_cluster(int idx, int size) {
   int i = (int) floor(log_base(size, 1 + epsilon));// I think it is wrong
+	std::cout << "delete cluster from bucket " << i << std::endl;
   nn_data_structures[i].RemovePoint(idx);
 	sizes[i] = sizes[i] - 1;
 }
@@ -132,6 +132,7 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
       auto res_ = get_point(i);
       delete_cluster(i, 1);
       auto t = query(res_, 1);
+			std::cout << std::get<0>(t) << ' ' << std::get<1>(t) << std::endl;
 			min_dis = std::min(std::get<1>(t), min_dis);
 			add_cluster(res_, 1, i);
 			cluster_weight[{0, i}] = 1;
@@ -143,7 +144,7 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
 
 			unmerged_clusters.insert({std::get<0>(t), 1});
 			existed[{std::get<0>(t), cluster_weight[{0, std::get<0>(t)}]}] = true;
-		//	std::cout << "( " << std::get<0>(t) << ' ' <<  cluster_weight[{0, std::get<0>(t)}] << " ) " << std::endl;
+		//std::cout << "( " << std::get<0>(t) << ' ' <<  cluster_weight[{0, std::get<0>(t)}] << " ) " << std::endl;
   }
   return min_dis;
 }

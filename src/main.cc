@@ -2,17 +2,17 @@
 // * This file is for testing
 // *
 // */
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
-#include <vector>
-#include <random>
-#include <dlfcn.h>
-#include "nn_cluster.h"
-#include "hierarchical_clustering.h"
-#include <time.h>
-#include <limits>
-#include <cmath>
+// #include <iostream>
+// #include <fstream>
+// #include <stdlib.h>
+// #include <vector>
+// #include <random>
+// #include <dlfcn.h>
+// #include "nn_cluster.h"
+// #include "hierarchical_clustering.h"
+// #include <time.h>
+// #include <limits>
+// #include <cmath>
 //
 // clock_t start;
 // clock_t current;
@@ -292,7 +292,7 @@
 // 	}
 // }
 //
-int main () {
+//int main () {
   //test_data_structure();
   //test_HC();
   //the_big_exp();
@@ -307,6 +307,6 @@ int main () {
   //std::string file_name = "./news_11314.in";
   //test_news_group(file_name);
   //test_news_group_several_sizes();
-  std::cout << "yeyy" << std::endl;
-	return 0;
-}
+//   std::cout << "yeyy" << std::endl;
+// 	return 0;
+// }

@@ -27,12 +27,11 @@
 #include <random>
 #include <vector>
 
-using namespace std;
-// using std::map;
-// using std::max;
-// using std::min;
-// using std::pair;
-// using std::vector;
+using std::map;
+using std::max;
+using std::min;
+using std::pair;
+using std::vector;
 
 class LSHDataStructure {
  public:
