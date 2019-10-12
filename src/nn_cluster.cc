@@ -7,24 +7,9 @@
 #include <sstream>
 
 /**
-* TODO: add point by pushing back to the vector
+* TODO: add point by pushing back to the std::vector
 *
 */
-
-template <class T>
-std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
-	if(v.size() == 0) {
-		out << "()";
-		return out;
-	} else  {
-		out << '(';
-		out << ' ' << v[0] ;
-		for(size_t i = 1; i < v.size(); ++i)
-			out << " , " << v[i];
-		out << ')';
-		return out;
-	}
-}
 
 inline double log_base(double num, double base) { return std::log(num) / std::log(base); }
 
@@ -32,13 +17,14 @@ inline double nnCluster::distance(int size_a, int size_b, double dist) {
   return (size_a * size_b * dist) /(size_a + size_b);
 }
 
-nnCluster::nnCluster(std::vector<vector<double>> &points_, int n, int d, double epsilon_, double gamma_):
+nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, double epsilon_, double gamma_):
 				size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_) {
 
+	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
 	number_of_data_structure = (std::max(nb_ds, 1)) * 2 + 5;
 	points = std::vector<std::vector<double>>(points_);
 
-	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
+	//int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
 
 	LSHDataStructure index(1000 , 1, d); // change the number of bucket later // parametrise it
@@ -88,6 +74,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
   return std::make_tuple(res, min_distance, cluster_weight[{res_index, res}]);
 }
 
+// I should add the cluster to the array of points
 int nnCluster::add_cluster(const std::vector<double> &query, int cluster_size, int id) {
 	    int idx = floor(log_base(cluster_size, 1 + epsilon));
       nn_data_structures[idx].InsertPoint(id, query);

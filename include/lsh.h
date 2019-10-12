@@ -54,6 +54,10 @@ class LSHDataStructure {
   // constructor
   LSHDataStructure(int bucket_size, int nb_bins1, int dimension);
 
+
+  // it was private
+  // maps : id -> coordinates of the inserted points
+  map<int, vector<double> > points_;
  private:
   // Compute L_2 norm between two points
   double SqrDist(const vector<double> &p1, const vector<double> &p2);
@@ -68,8 +72,7 @@ class LSHDataStructure {
   // parameter of LSH; roughly size of the bins
   int r_;
 
-  // maps : id -> coordinates of the inserted points
-  map<int, vector<double> > points_;
+
 
   // n^{1/gamma} hash functions, each hash function maps to N_+
   vector<pair<int, vector<double> > > projectors_;
