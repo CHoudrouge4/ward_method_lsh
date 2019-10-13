@@ -92,13 +92,13 @@ int nnCluster::add_cluster(const std::vector<double> &cluster, int cluster_size,
 /**
 *  TO CHECK
 */
-// std::tuple<int, double, int> nnCluster::add_new_cluster(const std::vector<double> &cluster, const int cluster_size, id) {
-// 	int idx = add_cluster(cluster, cluster_size, id);
-// //	auto t = query(cluster, cluster_size, true);
-// //	dict[{std::get<0>(t), cluster_size}] = {std::get<0>(t), cluster_size};
-// //	cluster_weight[{idx, std::get<0>(t)}] = cluster_size;
-// 	return {std::get<0>(t), std::get<1>(t), cluster_size};
-// }
+std::tuple<int, double, int> nnCluster::add_new_cluster(const std::vector<double> &cluster, const int cluster_size, int id) {
+	int idx = add_cluster(cluster, cluster_size, id);
+	auto t = query(cluster, cluster_size, true);
+	dict[{std::get<0>(t), cluster_size}] = {std::get<0>(t), cluster_size};
+	cluster_weight[{idx, std::get<0>(t)}] = cluster_size;
+	return {std::get<0>(t), std::get<1>(t), cluster_size};
+}
 
 /**
 * TO CHANGE

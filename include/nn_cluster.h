@@ -57,7 +57,7 @@ public:
   */
   int add_cluster(const std::vector<double> &cluster, int cluster_size, int old_index, int new_index, int id);
 
-  std::tuple<int, double, int> add_new_cluster(const std::vector<double> &cluster, const int cluster_size);
+  std::tuple<int, double, int> add_new_cluster(const std::vector<double> &cluster, const int cluster_size, int id);
 
   /**
   * This function deletes a cluseter with the id = idx, and weight = size.

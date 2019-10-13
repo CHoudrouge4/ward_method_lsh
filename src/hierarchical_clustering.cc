@@ -96,7 +96,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        {
            int u_tmp = u;
            int weight_tmp = u_weight;
-           auto p = nnc.add_new_cluster(merged_cluster, merged_weight);
+           auto p = nnc.add_new_cluster(merged_cluster, merged_weight, last_index);
 
            u = std::get<0>(p);
            u_weight = merged_weight;
@@ -129,74 +129,76 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
           flag = true;
         }
     }
-//       if(u_weight == size) break;
-//       if(u_weight == 0) break;
-//       if(!ok) {
-//         //assert(res_ != nullptr);
-//         int idx = nnc.add_cluster(res, u_weight);
-//         t = nnc.query(res, u_weight, true);
-//         nnc.update_size(idx, std::get<0>(t), u_weight);
-//         t_weight = std::get<2>(t);
-//
-//         nnc.update_dict(std::get<0>(t), u_weight, u, u_weight);
-//
-//         existed[{std::get<0>(t), u_weight}] = true;
-//         magic.insert({std::get<0>(t), u_weight});
-//       } else {
-//         int idx = nnc.add_cluster(merged_cluster, merged_weight);
-//         auto tt = nnc.query(merged_cluster, merged_weight, true);
-//         nnc.update_size(idx, std::get<0>(tt), merged_weight);
-//
-//         tt = nnc.query(merged_cluster, merged_weight, true);
-//
-//         existed[{std::get<0>(tt), merged_weight}] = true;
-//         unchecked.insert({std::get<0>(tt), merged_weight});
-//         nnc.update_dict(std::get<0>(tt), merged_weight, u, u_weight);
-  //     }
-      }
+
+    if(u_weight == size) break;
+    if(u_weight == 0) break;
+    if(!ok) {
+     //assert(res_ != nullptr);
+    int idx = nnc.add_cluster(res, u_weight, last_index);
+    t = nnc.query(res, u_weight, true);
+    nnc.update_size(idx, std::get<0>(t), u_weight);
+    t_weight = std::get<2>(t);
+
+    nnc.update_dict(std::get<0>(t), u_weight, u, u_weight);
+
+    existed[{std::get<0>(t), u_weight}] = true;
+    magic.insert({std::get<0>(t), u_weight});
+   } else {
+     // fix the id
+     int idx = nnc.add_cluster(merged_cluster, merged_weight, last_index);
+     auto tt = nnc.query(merged_cluster, merged_weight, true);
+     nnc.update_size(idx, std::get<0>(tt), merged_weight);
+
+     tt = nnc.query(merged_cluster, merged_weight, true);
+
+     existed[{std::get<0>(tt), merged_weight}] = true;
+     unchecked.insert({std::get<0>(tt), merged_weight});
+     nnc.update_dict(std::get<0>(tt), merged_weight, u, u_weight);
+     }
+    }
    }
-//
-//   for(size_t i = 0; i < to_erase.size(); ++i) mp.erase(to_erase[i]);
-//   to_erase.clear();
-//   return unchecked;
+
+   for(size_t i = 0; i < to_erase.size(); ++i) mp.erase(to_erase[i]);
+   to_erase.clear();
+   return unchecked;
 }
 //
-// void hierarchical_clustering::build_hierarchy() {
-//   double merge_value;
-//   for (int i = 0; i < beta; ++i) {
-//     merge_value = pow(1 + epsilon, i); // find an efficient one
-//     //std::cout << "merge value " << merge_value << std::endl;
+void hierarchical_clustering::build_hierarchy() {
+  double merge_value;
+  for (int i = 0; i < beta; ++i) {
+    merge_value = pow(1 + epsilon, i); // find an efficient one
+    //std::cout << "merge value " << merge_value << std::endl;
+
+    auto ss = helper(this->unmerged_clusters, merge_value); // these are the merges
+    while (ss.size() > 1) {
+      auto tmp = helper(ss, merge_value);
+      ss.clear();
+      for(auto&& p: tmp) {
+        existed[p] = true;
+        ss.insert(p);
+      }
+     if(stop) break;
+   }
+
+   if(stop) return;
+   if(ss.size() == 1) unmerged_clusters.insert(*ss.begin());
+   for(auto m: magic) unmerged_clusters.insert(m);
+
+     magic.clear();
+     if(unmerged_clusters.size() <= 1) break;
+  }
+}
 //
-//     auto ss = helper(this->unmerged_clusters, merge_value); // these are the merges
-//     while (ss.size() > 1) {
-//       auto tmp = helper(ss, merge_value);
-//       ss.clear();
-//       for(auto&& p: tmp) {
-//         existed[p] = true;
-//         ss.insert(p);
-//       }
-//       if(stop) break;
-//     }
-//
-//     if(stop) return;
-//     if(ss.size() == 1) unmerged_clusters.insert(*ss.begin());
-//     for(auto m: magic) unmerged_clusters.insert(m);
-//
-//     magic.clear();
-//     if(unmerged_clusters.size() <= 1) break;
-//   }
-// }
-//
-// std::vector<std::pair<pair_int, pair_int>> hierarchical_clustering::get_merges() const {
-//   return merges;
-// }
-//
-// void hierarchical_clustering::print_merges() {
-//   for (auto&& t: output) {
-//     std::cout << toString(std::get<0>(t)) << toString(std::get<1>(t)) << toString(std::get<2>(t)) << std::endl;
-//   }
-// }
-//
+std::vector<std::pair<pair_int, pair_int>> hierarchical_clustering::get_merges() const {
+   return merges;
+}
+
+void hierarchical_clustering::print_merges() {
+   for (auto&& t: output) {
+     std::cout << toString(std::get<0>(t)) << toString(std::get<1>(t)) << toString(std::get<2>(t)) << std::endl;
+   }
+}
+
 void hierarchical_clustering::print_file(const std::string filename) {
   std::ofstream out(filename);
   for (auto&& t: output)
