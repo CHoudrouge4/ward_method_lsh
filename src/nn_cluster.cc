@@ -8,9 +8,8 @@
 
 /**
 * TODO: add point by pushing back to the std::vector
-*
+* Question: is the distance of LSH squared ?
 */
-
 inline double log_base(double num, double base) { return std::log(num) / std::log(base); }
 
 inline double nnCluster::distance(int size_a, int size_b, double dist) {

@@ -74,27 +74,33 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
      if(u_weight == 0) continue;
      to_erase.push_back({u, u_weight});// it should not be here
 
-      auto res = nnc.get_point(u);
-      nnc.delete_cluster(u, u_weight); // we delete the cluster because it is the nn of itself
+     auto res = nnc.get_point(u);
+     nnc.delete_cluster(u, u_weight); // we delete the cluster because it is the nn of itself
 
-      auto t = nnc.query(res, u_weight);
-     //std::cout << "t: " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << std::endl;
-
-     double dist = std::get<1>(t); // getting the distance
+     auto t = nnc.query(res, u_weight);
+     double dist  = std::get<1>(t); // getting the distance
      int t_weight = std::get<2>(t);
 
-     if (dist < merge_value) {
+
+     if (dist <= merge_value) {
 
        ok = true;
-       auto nn_pt = nnc.get_point(std::get<0>(t));// to check
+       auto nn_pt = nnc.get_point(std::get<0>(t));
 
        merged_cluster = merge(res, nn_pt, u_weight, t_weight);
        merged_weight = u_weight + t_weight;
 
-       // insert the merged cluster in magic to check it again in this round, (easy)
-       // or we can do while then remove it
-      // add the cluster to the data strcture
-      //output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
+
+      // insert the merged cluster in magic to check it again in this round, (easy)
+      // or we can do while then remove it
+      // register the operation
+      // output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
+
+
+      // add the cluster to the data strcture -- check
+      last_index++;
+      nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
+      magic.insert({last_index, merged_weight});
 
       existed[p] = false;
       to_erase.push_back({u, u_weight});
@@ -149,26 +155,27 @@ void hierarchical_clustering::build_hierarchy() {
     merge_value = pow(1 + epsilon, i); // find an efficient one
     //std::cout << "merge value " << merge_value << std::endl;
 
-    auto ss = helper(this->unmerged_clusters, merge_value); // these are the merges
-    while (ss.size() > 1) {
-      auto tmp = helper(ss, merge_value);
-      ss.clear();
+    auto the_merged_cluster = helper(this->unmerged_clusters, merge_value); // these are the merges
+    while (the_merged_cluster.size() > 1) {
+      auto tmp = helper(the_merged_cluster, merge_value);
+      the_merged_cluster.clear();
       for(auto&& p: tmp) {
         existed[p] = true;
-        ss.insert(p);
+        the_merged_cluster.insert(p);
       }
      if(stop) break;
    }
 
    if(stop) return;
-   if(ss.size() == 1) unmerged_clusters.insert(*ss.begin());
+   if(the_merged_cluster.size() == 1) unmerged_clusters.insert(*the_merged_cluster.begin());
    for(auto m: magic) unmerged_clusters.insert(m);
 
      magic.clear();
      if(unmerged_clusters.size() <= 1) break;
   }
 }
-//
+
+// return the merges
 std::vector<std::pair<pair_int, pair_int>> hierarchical_clustering::get_merges() const {
    return merges;
 }
