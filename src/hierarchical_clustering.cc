@@ -7,7 +7,7 @@
 #include <tuple>
 #include <utility>
 #include <sstream>
-//
+
 /**
 * TODO:
 *   Remove the log_base_ funstion
@@ -59,6 +59,7 @@ inline std::vector<double> hierarchical_clustering::merge(std::vector<double> &m
   return res;
 }
 
+// create a vector for the next round
 std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &to_merge, double merge_value) {
   std::unordered_set <pair_int> unchecked; // this one should be placed maybe in different place, maybe it should be in the fields
   std::vector<double> merged_cluster;
@@ -82,51 +83,31 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
      double dist = std::get<1>(t); // getting the distance
      int t_weight = std::get<2>(t);
 
-
      if (dist < merge_value) {
+
        ok = true;
-
        auto nn_pt = nnc.get_point(std::get<0>(t));// to check
-
 
        merged_cluster = merge(res, nn_pt, u_weight, t_weight);
        merged_weight = u_weight + t_weight;
 
-       {
-         int u_tmp = u;
-         int weight_tmp = u_weight;
-         auto p = nnc.add_new_cluster(merged_cluster, merged_weight, last_index);
+       // insert the merged cluster in magic to check it again in this round, (easy)
+       // or we can do while then remove it
+      // add the cluster to the data strcture
+      //output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
 
-         u = std::get<0>(p);
-         u_weight = merged_weight;
-         nnc.delete_cluster(u, u_weight);
+      existed[p] = false;
+      to_erase.push_back({u, u_weight});
 
-         output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
-       }
+      existed[{std::get<0>(t), t_weight}] = false;
+      to_erase.push_back({std::get<0>(t), t_weight});
+      nnc.delete_cluster(std::get<0>(t), t_weight);
+      if(merged_weight == size) {
+        stop = true;
+        break;
+      }
+      // we have to add the merged one to magic
 
-        existed[p] = false;
-        to_erase.push_back({u, u_weight});
-
-        existed[{std::get<0>(t), t_weight}] = false;
-        to_erase.push_back({std::get<0>(t), t_weight});
-        nnc.delete_cluster(std::get<0>(t), t_weight);
-
-        if(merged_weight == size) {
-          stop = true;
-          break;
-        }
-
-        t        = nnc.query(merged_cluster, merged_weight);
-        dist     = std::get<1>(t);
-        t_weight = std::get<2>(t);
-
-        if (t_weight <= 0 || std::get<0>(t) < 0) break;
-        auto nnn_pt = nnc.get_point(std::get<0>(t));
-//          if(nnn_pt == nullptr) break;
-        if (dist < merge_value) {
-          res  = merged_cluster;
-          flag = true;
-        }
     }
 
     if(u_weight == size) break;
