@@ -68,7 +68,6 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
   for (auto&& p : to_merge) {
      if(existed[p]) {
        bool ok = false;
-       bool flag = false;
        int u = p.id;
        int u_weight = p.w;
        if(u_weight == 0) continue;
@@ -142,7 +141,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        // do I need this?
        unchecked.insert({std::get<0>(tt), merged_weight});
        nnc.update_dict(std::get<0>(tt), merged_weight, u, u_weight);
-       }
+      }
       }
    }
 
