@@ -59,21 +59,20 @@ inline std::vector<double> hierarchical_clustering::merge(std::vector<double> &m
   return res;
 }
 
-std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, double merge_value) {
+std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &to_merge, double merge_value) {
   std::unordered_set <pair_int> unchecked; // this one should be placed maybe in different place, maybe it should be in the fields
   std::vector<double> merged_cluster;
   merged_cluster.reserve(dimension);
   int merged_weight;
-  for (auto&& p : mp) {
+  for (auto&& p : to_merge) {
      if(existed[p]) {
      bool ok = false;
      bool flag = false;
      int u = p.id;
      int u_weight = p.w;
      if(u_weight == 0) continue;
-     to_erase.push_back({u, u_weight});
+     to_erase.push_back({u, u_weight});// it should not be here
 
-     //double * res_ = (double *) malloc(dimension * sizeof(double));
       auto res = nnc.get_point(u);
       nnc.delete_cluster(u, u_weight); // we delete the cluster because it is the nn of itself
 
@@ -84,27 +83,27 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
      int t_weight = std::get<2>(t);
 
 
-     while (dist < merge_value) {
+     if (dist < merge_value) {
        ok = true;
 
        auto nn_pt = nnc.get_point(std::get<0>(t));// to check
 
-       // merging phase
+
        merged_cluster = merge(res, nn_pt, u_weight, t_weight);
        merged_weight = u_weight + t_weight;
 
        {
-           int u_tmp = u;
-           int weight_tmp = u_weight;
-           auto p = nnc.add_new_cluster(merged_cluster, merged_weight, last_index);
+         int u_tmp = u;
+         int weight_tmp = u_weight;
+         auto p = nnc.add_new_cluster(merged_cluster, merged_weight, last_index);
 
-           u = std::get<0>(p);
-           u_weight = merged_weight;
-           nnc.delete_cluster(u, u_weight);
+         u = std::get<0>(p);
+         u_weight = merged_weight;
+         nnc.delete_cluster(u, u_weight);
 
-           output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
+         output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
        }
-//
+
         existed[p] = false;
         to_erase.push_back({u, u_weight});
 
@@ -121,10 +120,10 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         dist     = std::get<1>(t);
         t_weight = std::get<2>(t);
 
-        if(t_weight <= 0 || std::get<0>(t) < 0) break;
+        if (t_weight <= 0 || std::get<0>(t) < 0) break;
         auto nnn_pt = nnc.get_point(std::get<0>(t));
 //          if(nnn_pt == nullptr) break;
-        if(dist < merge_value) {
+        if (dist < merge_value) {
           res  = merged_cluster;
           flag = true;
         }
@@ -158,7 +157,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
     }
    }
 
-   for(size_t i = 0; i < to_erase.size(); ++i) mp.erase(to_erase[i]);
+   for(size_t i = 0; i < to_erase.size(); ++i) to_merge.erase(to_erase[i]);
    to_erase.clear();
    return unchecked;
 }
