@@ -28,12 +28,11 @@ inline std::string toString(const std::pair< size_t, size_t> & data) {
      return str.str();
 }
 
-hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>> &data, int n, int d, double epsilon_, double gamma_):
-                                                               nnc(data, n, d, epsilon_, gamma_),
+hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>> &data, int n, int d, double epsilon_):
+                                                               nnc(data, n, d, epsilon_),
                                                                dimension(d),
                                                                size(n),
-                                                               epsilon(epsilon_),
-                                                               gamma(gamma_) {
+                                                               epsilon(epsilon_) {
   last_index = data.size();
   max_dist = nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());

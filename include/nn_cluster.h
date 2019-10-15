@@ -6,6 +6,7 @@
 #include <memory>
 
 // add map from size to index
+// store the points in a map int -> vec
 
 typedef std::pair<int, int> pair_int;
 
@@ -38,7 +39,7 @@ public:
 class nnCluster {
 public:
   // Constructor
-  nnCluster (std::vector<std::vector<double>> &points_, int n, int d, double epsilon_, double gamma_);
+  nnCluster (std::vector<std::vector<double>> &points_, int n, int d, double epsilon_);
   /**
   * This function return a nearest neighbour cluster id, distance to query,
   * and the weight of the nearest neighbour.
@@ -51,13 +52,6 @@ public:
   *
   */
   int add_cluster(const std::vector<double> &cluster, const int cluster_size, int id);
-
-  /**
-  * This function adds a cluster of a given size to the corresponding data structure
-  */
-  int add_cluster(const std::vector<double> &cluster, int cluster_size, int old_index, int new_index, int id);
-
-  std::tuple<int, double, int> add_new_cluster(const std::vector<double> &cluster, const int cluster_size, int id);
 
   /**
   * This function deletes a cluseter with the id = idx, and weight = size.

@@ -12,18 +12,19 @@
 */
 inline double log_base(double num, double base) { return std::log(num) / std::log(base); }
 
+// maybe it should be named delta_ess
 inline double nnCluster::distance(int size_a, int size_b, double dist) {
   return (size_a * size_b * dist) / (size_a + size_b);
 }
 
-nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, double epsilon_, double gamma_):
-				size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_) {
+//constructor
+nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, double epsilon_):
+				size(n), dimension(d), epsilon(epsilon_) {
 
 	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
 	number_of_data_structure = (std::max(nb_ds, 1)) * 2 + 5;
 	points = std::vector<std::vector<double>>(points_);
 
-	//int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
 
 	LSHDataStructure index(1000 , 1, d); // change the number of bucket later // parametrise it
@@ -78,25 +79,8 @@ int nnCluster::add_cluster(const std::vector<double> &query, int cluster_size, i
 	    int idx = floor(log_base(cluster_size, 1 + epsilon));
       nn_data_structures[idx].InsertPoint(id, query);
 			sizes[idx] = sizes[idx] + 1;
+      if(id > points.size()) points.push_back(query);
 			return idx;
-}
-
-int nnCluster::add_cluster(const std::vector<double> &cluster, int cluster_size, int old_index, int new_index, int id) {
-	int idx = add_cluster(cluster, cluster_size, id);
-	dict[{new_index, cluster_size}] = dict[{old_index, cluster_size}];
-//	idx_index[{idx, new_index}] = idx_index[{idx, old_index}];
-	return idx;
-}
-
-/**
-*  TO CHECK
-*/
-std::tuple<int, double, int> nnCluster::add_new_cluster(const std::vector<double> &cluster, const int cluster_size, int id) {
-	int idx = add_cluster(cluster, cluster_size, id);
-	auto t = query(cluster, cluster_size, true);
-	dict[{std::get<0>(t), cluster_size}] = {std::get<0>(t), cluster_size};
-	cluster_weight[{idx, std::get<0>(t)}] = cluster_size;
-	return {std::get<0>(t), std::get<1>(t), cluster_size};
 }
 
 /**

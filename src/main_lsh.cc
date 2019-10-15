@@ -20,7 +20,7 @@ void test_nn_cluster() {
   int n, m;
   std::string file_name = "data.in";
   auto p = read_file(file_name, n, m);
-  nnCluster nnc(p, n, m, 0.9, 0.1);
+  nnCluster nnc(p, n, m, 0.9);
 
   std::unordered_set<pair_int> unmerged_clusters;
   std::unordered_map<pair_int, bool, pairhash> existed;

@@ -42,7 +42,7 @@ private:
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, double merge_value);
 
 public:
-  hierarchical_clustering(std::vector<std::vector<double>> &data, int n, int d, double epsilon_, double gamma_);
+  hierarchical_clustering(std::vector<std::vector<double>> &data, int n, int d, double epsilon_);
   std::vector<std::pair<pair_int, pair_int>> get_merges() const;
   void print_merges();
   void build_hierarchy();
