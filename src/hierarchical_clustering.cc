@@ -104,7 +104,8 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         lambda.insert(mc);
         existed[mc] = true;
         // register the merge operation
-        output.push_back(std::make_tuple(nnc.get_index(last_index, merged_weight), nnc.get_index(u, u_weight), nnc.get_index(std::get<0>(t), std::get<2>(t))));
+        output.push_back(std::make_tuple(std::make_pair(last_index, merged_weight),
+        std::make_pair(u, u_weight), std::make_pair(std::get<0>(t), std::get<2>(t))));
         last_index++;
 
         existed[p] = false;
@@ -189,7 +190,7 @@ void hierarchical_clustering::build_hierarchy() {
 
    if(stop) return;
    if(the_merged_cluster.size() == 1) unmerged_clusters.insert(*the_merged_cluster.begin());
-   for(auto m: lambda) unmerged_clusters.insert(m);
+   for(auto&& m: lambda) unmerged_clusters.insert(m);
 
   //  lambda.clear();
     if(unmerged_clusters.size() <= 1) break;
