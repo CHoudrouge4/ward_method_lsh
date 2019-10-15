@@ -136,7 +136,7 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
 		cluster_weight[{0, std::get<0>(t)}] = 1;
 
 		unmerged_clusters.insert({std::get<0>(t), 1});
-		existed[{std::get<0>(t), cluster_weight[{0, std::get<0>(t)}]}] = true;
+		existed[{std::get<0>(t), cluster_weight[{0, std::get<0>(t)}]}] = true; // check it
   }
   return min_dis + min_dis;
 }

@@ -34,7 +34,7 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
                                                                size(n),
                                                                epsilon(epsilon_),
                                                                gamma(gamma_) {
-
+  last_index = data.size();
   max_dist = nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
@@ -63,11 +63,11 @@ inline std::vector<double> hierarchical_clustering::merge(std::vector<double> &m
 std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &to_merge, double merge_value) {
   std::unordered_set <pair_int> unchecked; // this one should be placed maybe in different place, maybe it should be in the fields
   std::vector<double> merged_cluster;
-  merged_cluster.reserve(dimension);
+//  merged_cluster.reserve(dimension);
   int merged_weight;
   for (auto&& p : to_merge) {
      if(existed[p]) {
-       bool ok = false;
+       bool entered = false;
        int u = p.id;
        int u_weight = p.w;
        if(u_weight == 0) continue;
@@ -83,7 +83,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 
        if (dist <= merge_value) {
 
-         ok = true;
+         entered = true;
          auto nn_pt = nnc.get_point(std::get<0>(t));
 
          merged_cluster = merge(res, nn_pt, u_weight, t_weight);
@@ -95,53 +95,52 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         // register the operation
         // output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
 
-
         // add the cluster to the data strcture -- check
-        last_index++;
         nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
-        magic.insert({last_index, merged_weight});
+        unchecked.insert({last_index, merged_weight});
+        existed[{last_index, merged_weight}] = true;
+        last_index++;
 
         existed[p] = false;
         to_erase.push_back({u, u_weight});
 
-        // existed[{std::get<0>(t), t_weight}] = false;
-        // to_erase.push_back({std::get<0>(t), t_weight});
-        // nnc.delete_cluster(std::get<0>(t), t_weight);
         if(merged_weight == size) {
           stop = true;
           break;
         }
-        // we have to add the merged one to magic
+      } else {
+        /**
+        * If we did not have a merge in the during the process what we should
+        * do?
+        * -> reinsert the coordinates of p in the data structure
+        * -> is existed still true ?
+        * -> should we inserted in magic ?
+        */
+       // assert(res_ != nullptr);
+       // since we did not mege the cluster we have to take some action
 
+       nnc.add_cluster(res, u_weight, u);
+       // existed[{std::get<0>(t), u_weight}] = true;
+       // magic.insert({u, u_weight});
       }
 
+      // should we have these in this place ?
       if(u_weight == size) break;
       if(u_weight == 0) break;
-      if(!ok) {
-       //assert(res_ != nullptr);
-       // since we did not mege the cluster we have to take some actions
-      int idx = nnc.add_cluster(res, u_weight, last_index);
-      t = nnc.query(res, u_weight, true);
-      nnc.update_size(idx, std::get<0>(t), u_weight);
-      t_weight = std::get<2>(t);
 
-      nnc.update_dict(std::get<0>(t), u_weight, u, u_weight);
+      //if(entered) {
+        // I already did these actions
+        //auto tt = nnc.query(merged_cluster, merged_weight, true);
+        //nnc.update_size(idx, std::get<0>(tt), merged_weight);
 
-      existed[{std::get<0>(t), u_weight}] = true;
-      magic.insert({std::get<0>(t), u_weight});
-     } else {
-       // I already did these actions
-       int idx = nnc.add_cluster(merged_cluster, merged_weight, last_index);
-       auto tt = nnc.query(merged_cluster, merged_weight, true);
-       nnc.update_size(idx, std::get<0>(tt), merged_weight);
+        //tt = nnc.query(merged_cluster, merged_weight, true);
 
-       tt = nnc.query(merged_cluster, merged_weight, true);
+        //existed[{std::get<0>(tt), merged_weight}] = true;
+        // do I need this?
+        //unchecked.insert({std::get<0>(tt), merged_weight});
+        //nnc.update_dict(std::get<0>(tt), merged_weight, u, u_weight);
+      //}
 
-       existed[{std::get<0>(tt), merged_weight}] = true;
-       // do I need this?
-       unchecked.insert({std::get<0>(tt), merged_weight});
-       nnc.update_dict(std::get<0>(tt), merged_weight, u, u_weight);
-      }
       }
    }
 
