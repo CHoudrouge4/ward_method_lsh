@@ -13,7 +13,7 @@
 inline double log_base(double num, double base) { return std::log(num) / std::log(base); }
 
 inline double nnCluster::distance(int size_a, int size_b, double dist) {
-  return (size_a * size_b * dist) /(size_a + size_b);
+  return (size_a * size_b * dist) / (size_a + size_b);
 }
 
 nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, double epsilon_, double gamma_):
