@@ -79,7 +79,9 @@ int nnCluster::add_cluster(const std::vector<double> &query, int cluster_size, i
 	    int idx = floor(log_base(cluster_size, 1 + epsilon));
       nn_data_structures[idx].InsertPoint(id, query);
 			sizes[idx] = sizes[idx] + 1;
-      if(id > points.size()) points.push_back(query);
+      cluster_weight[{idx, id}] = cluster_size ;
+      std::cout << "cluster " << id << " and weight " << cluster_size << " is added to DS " << idx << '\n';
+      if(id >= points.size()) points.push_back(query);
 			return idx;
 }
 
@@ -88,12 +90,12 @@ int nnCluster::add_cluster(const std::vector<double> &query, int cluster_size, i
 */
 void nnCluster::delete_cluster(int idx, int size) {
   int i = (int) floor(log_base(size, 1 + epsilon));// I think it is wrong
-	std::cout << "delete cluster from bucket " << i << std::endl;
   nn_data_structures[i].RemovePoint(idx);
 	sizes[i] = sizes[i] - 1;
 }
 
 std::vector<double> nnCluster::get_point(int idx) {
+  std::cout << "getting point " << idx << " from total number of points " << points.size() << std::endl;
 	return points[idx];
 }
 
@@ -101,27 +103,25 @@ std::vector<double> nnCluster::get_point(int idx) {
 double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed) {
   double min_dis = std::numeric_limits<double>::max();
 	for (int i = 0; i < size; ++i) {
-  	auto res_ = get_point(i);
+  	auto res = get_point(i);
     delete_cluster(i, 1);
-    auto t = query(res_, 1);
-
-		std::cout << std::get<0>(t) << ' ' << std::get<1>(t) << std::endl;
+    auto t = query(res, 1);
+    std::cout << "The nearest neighbor of cluster " << i << " is cluster " << std::get<0>(t) << std::endl;
 		min_dis = std::min(std::get<1>(t), min_dis);
 
-		add_cluster(res_, 1, i);
+    iszero(min_dis < 0);
 
+		add_cluster(res, 1, i);
 		dict[{i, 1}] = {i, 1};
 
-		t = query(res_, 1, i);
 
-		// I think I don't need these anymore.
+		dict[{i, 1}] = {i, 1};
+		cluster_weight[{0, i}] = 1;
 
-		dict[{std::get<0>(t), 1}] = {i, 1};
-		cluster_weight[{0, std::get<0>(t)}] = 1;
-
-		unmerged_clusters.insert({std::get<0>(t), 1});
-		existed[{std::get<0>(t), cluster_weight[{0, std::get<0>(t)}]}] = true; // check it
+		unmerged_clusters.insert({i, 1});
+		existed[{i, 1}] = true; // check it
   }
+  std::cout << "the minimum distance is: " << min_dis + min_dis << std::endl;
   return min_dis + min_dis;
 }
 
@@ -167,5 +167,6 @@ double nnCluster::compute_max_dist(const std::vector<std::vector<double>> points
 		y = min_pt[i];
 		dist += (x - y) * (x - y);
 	}
-	return dist;
+  std::cout << "The maximum distance is: " << 2 * dist << std::endl;
+	return 2 * dist;
 }

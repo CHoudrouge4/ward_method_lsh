@@ -37,8 +37,10 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
   max_dist = nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
+  std::cout << "the number of unmerged clusters at t0: " << unmerged_clusters.size() << std::endl;
   for (auto && p: unmerged_clusters) lambda.insert(p);
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / double
+  std::cout << "beta (the maximim merge value is) " << beta << std::endl;
   output.reserve(n);
   to_erase.reserve(n);
 }
@@ -66,12 +68,13 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 //  merged_cluster.reserve(dimension);
   int merged_weight;
   for (auto&& p : to_merge) {
-     if(existed[p]) {
+     if(existed[p] && p.w < size) {
        bool entered = false;
        int u = p.id;
        int u_weight = p.w;
+       std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
        if(u_weight == 0) continue;
-       to_erase.push_back({u, u_weight});// it should not be here
+       to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
        nnc.delete_cluster(u, u_weight); // we delete the cluster because it is the nn of itself
@@ -79,32 +82,39 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        auto t = nnc.query(res, u_weight);
        double dist  = std::get<1>(t); // getting the distance
        int t_weight = std::get<2>(t);
-
-
+       std::cout << "comparing distance and merge values " << dist << " ? " << merge_value << std::endl;
        if (dist <= merge_value) {
-
          entered = true;
          auto nn_pt = nnc.get_point(std::get<0>(t));
 
          merged_cluster = merge(res, nn_pt, u_weight, t_weight);
          merged_weight = u_weight + t_weight;
-
+         std::cout << ">>>> merged_weight: " << merged_weight << ' ' << u_weight << ' ' << t_weight << std::endl;
 
         // insert the merged cluster in lambda to check it again in this round, (easy)
         // or we can do while then remove it
         // register the operation
-        // output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
+
 
         // add the cluster to the data strcture -- check
+        std::cout << "insert the merged cluster with the index: " << last_index << std::endl;
         pair_int mc = std::make_pair(last_index, merged_weight);
         nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
         unchecked.insert(mc);
         lambda.insert(mc);
         existed[mc] = true;
+        // register the merge operation
+        output.push_back(std::make_tuple(nnc.get_index(last_index, merged_weight), nnc.get_index(u, u_weight), nnc.get_index(std::get<0>(t), std::get<2>(t))));
         last_index++;
 
         existed[p] = false;
-        to_erase.push_back({u, u_weight});
+        existed[{std::get<0>(t), std::get<2>(t)}] = false;
+
+        to_erase.push_back({std::get<0>(t), std::get<2>(t)});
+        nnc.delete_cluster(std::get<0>(t), std::get<2>(t));
+
+        lambda.erase({u, u_weight});
+        lambda.erase({std::get<0>(t), std::get<2>(t)});
 
         if(merged_weight == size) {
           stop = true;
@@ -122,12 +132,12 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        // since we did not mege the cluster we have to take some action
 
        nnc.add_cluster(res, u_weight, u);
-       // existed[{std::get<0>(t), u_weight}] = true;
-       // lambda.insert({u, u_weight});
+       existed[{u, u_weight}] = true;
+       //lambda.insert({u, u_weight});
       }
 
       // should we have these in this place ?
-      if(u_weight == size) break;
+      if(u_weight >= size) break;
       if(u_weight == 0) break;
 
       //if(entered) {
@@ -152,7 +162,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
    // deleting the merged clusters
    for(size_t i = 0; i < to_erase.size(); ++i) {
      to_merge.erase(to_erase[i]);
-     lambda.erase(to_erase[i]);
+     //lambda.erase(to_erase[i]);
    }
    to_erase.clear();
    return unchecked;
@@ -199,6 +209,7 @@ void hierarchical_clustering::print_merges() {
 
 void hierarchical_clustering::print_file(const std::string filename) {
   std::ofstream out(filename);
+  std::cout << output.size() << std::endl;
   for (auto&& t: output)
     out << toString(std::get<0>(t)) << toString(std::get<1>(t)) << toString(std::get<2>(t)) << std::endl;
   out.close();
