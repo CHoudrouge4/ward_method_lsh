@@ -32,8 +32,8 @@ private:
 
   std::vector<std::pair<pair_int, pair_int>> merges;
   std::unordered_map<pair_int, bool, pairhash> existed;
-  std::unordered_set<pair_int> magic;
-  std::unordered_set<std::pair<int, int>> unmerged_clusters;
+  std::unordered_set<pair_int> lambda;
+  std::unordered_set<pair_int> unmerged_clusters;
   std::vector<std::tuple<pair_int, pair_int, pair_int>> output;
   std::vector<pair_int> to_erase;
 
