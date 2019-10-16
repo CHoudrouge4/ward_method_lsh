@@ -269,10 +269,24 @@ def epsilons_perf():
         approx_vs_ward(e, 32, 16, 'news' + str(sizes), 2164, sizes)
 
 
-epsilons_perf()
+#epsilons_perf()
 #leaves_perf()
 
 #tree_sizes_perf()
 #_, _, labels, _ = get_news_group(2)
 #for u in labels:
 #    print (u)
+def simple_exp():
+    data_name = ['iris', 'cancer', 'digits', 'boston']
+    for name in data_name:
+        print(name)
+        data, n, labels, k = get_dataset(name)
+        ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+        clustering = ward.fit(data)
+        clust = clustering.labels_
+        print('Ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
+        T = read_file(name + '.out')
+        clust = clusters(T, k)
+        print('approx' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)))
+
+simple_exp()

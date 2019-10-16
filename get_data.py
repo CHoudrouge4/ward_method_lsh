@@ -40,13 +40,11 @@ def get_dataset(name):
     #n_elements = len(unique(labels))
     return data, 1, labels, len(set(labels))
 
-#data_name = ["iris", "cancer", "digits", "boston", "KDD"]
-
-data_name = ["iris"]
+data_name = ["iris", "cancer", "digits", "boston"]
 for name in data_name:
     print(name)
     x, _, _, _ = get_dataset(name)
     n, d = x.shape
     print (name, " shape: ",  n, ' ', d)
     file_name = name + ".in"
-    savetxt(file_name, x, delimiter=' ')
+    savetxt(file_name, x, delimiter=' ', comments='',  header=str(n) + ' ' + str(d))

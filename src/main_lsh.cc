@@ -2,6 +2,7 @@
 #include "hierarchical_clustering.h"
 #include <vector>
 #include <fstream>
+#include <cmath>
 
 std::vector<std::vector<double>> read_file(const std::string file_name, int &n, int &m) {
    std::ifstream in(file_name);
@@ -53,16 +54,21 @@ void compute_matrix_distance(std::vector<std::vector<double>> &data) {
 void test_HC(std::string input_file, std::string output_file, double epsilon) {
   int n, d;
   auto data = read_file(input_file, n, d);
-  compute_matrix_distance(data);
-  hierarchical_clustering hc(data, n, d, epsilon, 1, 1, 1);
+  //compute_matrix_distance(data);
+  int bucket = 3;
+  int bins = (int)floor(std::pow(n, 1/4.0));
+  int run_time = 6 * bins;
+  hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
   hc.build_hierarchy();
-
   hc.print_file(output_file);
 }
 
 int main() {
 
   //test_nn_cluster();
-  test_HC("data.in", "data.out", 1);
+  std::vector<std::string> data_names = {"iris", "cancer", "digits", "boston"};
+  for (auto&& name : data_names) {
+    test_HC(name + ".in", name + ".out", 1);
+  }
   return 0;
 }
