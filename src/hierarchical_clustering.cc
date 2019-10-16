@@ -49,7 +49,7 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
 * new_centroid = ((size_a * mu_a) + (size_b * mu_b))/(size_a + size_b).
 *
 */
-inline std::vector<double> hierarchical_clustering::merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b) {
+std::vector<double> hierarchical_clustering::merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b) {
   double den = size_a + size_b;
   double coeff_a = size_a / den; // make sure if this is efficient
   double coeff_b = size_b / den;

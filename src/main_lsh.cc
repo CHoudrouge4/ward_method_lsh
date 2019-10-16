@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
+#include <time.h>
 
 std::vector<std::vector<double>> read_file(const std::string file_name, int &n, int &m) {
    std::ifstream in(file_name);
@@ -54,13 +55,16 @@ void compute_matrix_distance(std::vector<std::vector<double>> &data) {
 void test_HC(std::string input_file, std::string output_file, double epsilon) {
   int n, d;
   auto data = read_file(input_file, n, d);
-  std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl; 
+  std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl;
   //compute_matrix_distance(data);
   int bucket = 3;
   int bins = (int)floor(std::pow(n, 1/2.0));
   int run_time = 5 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
+  clock_t start = clock();
   hc.build_hierarchy();
+  clock_t end = clock();
+  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
   hc.print_file(output_file);
 }
 
