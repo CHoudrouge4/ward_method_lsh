@@ -39,7 +39,8 @@ public:
 class nnCluster {
 public:
   // Constructor
-  nnCluster (std::vector<std::vector<double>> &points_, int n, int d, double epsilon_);
+  nnCluster (std::vector<std::vector<double>> &points_, int n, int d, double epsilon_,
+                                              int bucket, int bins, int running_time);
   /**
   * This function return a nearest neighbour cluster id, distance to query,
   * and the weight of the nearest neighbour.
@@ -88,9 +89,10 @@ private:
   std::vector<std::vector<double>> points; // this stores the initial data points
   // size is the number of input points, number of data structures, number of visted leaves
   int size, dimension, number_of_data_structure;
-  int running_time = 10;
+  int bucket_size, nb_bins, running_time;
+
   // epsilon, gamma initially for appriximating nearest neighbour distance, maximum distance.
-  double epsilon, gamma, max_distance;
+  double epsilon, max_distance;
 
   // this vectors stores the nearest neighbour data structures
   std::vector<LSHDataStructure> nn_data_structures;

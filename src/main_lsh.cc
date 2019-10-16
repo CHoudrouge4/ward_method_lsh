@@ -21,7 +21,7 @@ void test_nn_cluster() {
   int n, m;
   std::string file_name = "data.in";
   auto p = read_file(file_name, n, m);
-  nnCluster nnc(p, n, m, 0.9);
+  nnCluster nnc(p, n, m, 0.9,1,1,1);
 
   std::unordered_set<pair_int> unmerged_clusters;
   std::unordered_map<pair_int, bool, pairhash> existed;
@@ -54,7 +54,7 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   int n, d;
   auto data = read_file(input_file, n, d);
   compute_matrix_distance(data);
-  hierarchical_clustering hc(data, n, d, epsilon);
+  hierarchical_clustering hc(data, n, d, epsilon, 1, 1, 1);
   hc.build_hierarchy();
 
   hc.print_file(output_file);

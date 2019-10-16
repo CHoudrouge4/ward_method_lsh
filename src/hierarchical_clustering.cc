@@ -28,8 +28,8 @@ inline std::string toString(const std::pair< size_t, size_t> & data) {
      return str.str();
 }
 
-hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>> &data, int n, int d, double epsilon_):
-                                                               nnc(data, n, d, epsilon_),
+hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>> &data, int n, int d, double epsilon_, int buckets, int bins, int run_time):
+                                                               nnc(data, n, d, epsilon_, buckets, bins, run_time),
                                                                dimension(d),
                                                                size(n),
                                                                epsilon(epsilon_) {
@@ -37,10 +37,8 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
   max_dist = nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
-  std::cout << "the number of unmerged clusters at t0: " << unmerged_clusters.size() << std::endl;
   for (auto && p: unmerged_clusters) lambda.insert(p);
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / double
-  std::cout << "beta (the maximim merge value is) " << beta << std::endl;
   output.reserve(n);
   to_erase.reserve(n);
 }
@@ -72,7 +70,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        bool entered = false;
        int u = p.id;
        int u_weight = p.w;
-       std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
+      // std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
        if(u_weight == 0) continue;
        to_erase.push_back({u, u_weight});
 
@@ -82,14 +80,13 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        auto t = nnc.query(res, u_weight);
        double dist  = std::get<1>(t); // getting the distance
        int t_weight = std::get<2>(t);
-       std::cout << "comparing distance and merge values " << dist << " ? " << merge_value << std::endl;
+       //std::cout << "comparing distance and merge values " << std::get<0>(t) << ' ' << u << ' ' << dist << " ? " << merge_value << std::endl;
        if (dist <= merge_value) {
          entered = true;
          auto nn_pt = nnc.get_point(std::get<0>(t));
 
          merged_cluster = merge(res, nn_pt, u_weight, t_weight);
          merged_weight = u_weight + t_weight;
-         std::cout << ">>>> merged_weight: " << merged_weight << ' ' << u_weight << ' ' << t_weight << std::endl;
 
         // insert the merged cluster in lambda to check it again in this round, (easy)
         // or we can do while then remove it
@@ -97,7 +94,6 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 
 
         // add the cluster to the data strcture -- check
-        std::cout << "insert the merged cluster with the index: " << last_index << std::endl;
         pair_int mc = std::make_pair(last_index, merged_weight);
         nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
         unchecked.insert(mc);
@@ -210,7 +206,6 @@ void hierarchical_clustering::print_merges() {
 
 void hierarchical_clustering::print_file(const std::string filename) {
   std::ofstream out(filename);
-  std::cout << output.size() << std::endl;
   for (auto&& t: output)
     out << toString(std::get<0>(t)) << toString(std::get<1>(t)) << toString(std::get<2>(t)) << std::endl;
   out.close();
