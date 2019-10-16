@@ -77,7 +77,7 @@ public:
   /**
   * This function computes and returns an approximation of the maximum distance between all the clusters.
   */
-  double compute_max_dist(const std::vector<std::vector<double>> points, const int n, const int d);
+  double compute_max_dist(const std::vector<std::vector<double>> &points, const int n, const int d);
 
   pair_int get_index(int index, int weight);
 

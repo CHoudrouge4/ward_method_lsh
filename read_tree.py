@@ -155,6 +155,22 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension,
         clust = clustering.labels_
         file.write('std_ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
 
+
+
+def app_lsh_ward(data_file, input_file, size):
+    data, n, labels, k = get_news_group(size)
+    T = read_file(input_file)
+    print (k)
+    clust = clusters(T, k)
+    print (len(clust))
+    print('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
+    ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+    data = loadtxt(data_file, skiprows = 1)
+    print (data.shape)
+    clustering = ward.fit(data)
+    clust = clustering.labels_
+    print('std_ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
+    
 #
 #         for name in data_sets:
 #             data, n, labels, k = get_dataset(name)
@@ -227,7 +243,7 @@ def readFILE(file_name):
 #                         acc = normalized_mutual_info_score(convert(clust, len(labels)), labels)
 #                         print(str(end - start))
 #                         f.write(str(end - start) + ' ' + str(acc) + ' ')
-#                     f.write('\n')
+#i                     f.write('\n')
 
 #
 #data = readFILE("./data/iris.in")
@@ -289,4 +305,5 @@ def simple_exp():
         clust = clusters(T, k)
         print('approx' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)))
 
-simple_exp()
+app_lsh_ward('news_5000_100.in', 'news_5000_100.out', 5000)
+#simple_exp()

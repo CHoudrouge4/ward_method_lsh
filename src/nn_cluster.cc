@@ -26,7 +26,7 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
   running_time = run_time;
 
 	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
-	number_of_data_structure = (std::max(nb_ds, 1)) * 2 + 5;
+	number_of_data_structure = (std::max(nb_ds, 1))  + 5;
 	points = std::vector<std::vector<double>>(points_);
 
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
@@ -145,7 +145,7 @@ void nnCluster::update_size(int ds_index, int new_index, int size) {
 	cluster_weight[{ds_index, new_index}] = size;
 }
 
-double nnCluster::compute_max_dist(const std::vector<std::vector<double>> points, const int n, const int d) {
+double nnCluster::compute_max_dist(const std::vector<std::vector<double>> &points, const int n, const int d) {
 	std::vector<double> max_pt(d);
 	std::vector<double> min_pt(d);
 
