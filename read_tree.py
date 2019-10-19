@@ -303,5 +303,5 @@ def simple_exp():
         clust = clusters(T, k)
         print('approx' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)))
 
-#app_lsh_ward('news_5000_100.in', 'news_5000_100.out', 5000)
-simple_exp()
+app_lsh_ward('news_11314_10.in', 'news_11314_10.out', 11314)
+#simple_exp()
