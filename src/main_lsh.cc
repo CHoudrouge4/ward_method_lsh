@@ -32,20 +32,20 @@ void test_nn_cluster() {
 
 double distance(std::vector<double> &p, std::vector<double> &q) {
   double sum = 0.0;
-  for (int i = 0; i < p.size() && i < q.size(); ++i) {
+  for (size_t i = 0; i < p.size() && i < q.size(); ++i) {
     sum += (p[i] - q[i]) * (p[i] - q[i]);
   }
   return sum;
 }
 
 void compute_matrix_distance(std::vector<std::vector<double>> &data) {
-  for (int i = 0; i < data.size(); ++i) {
+  for (size_t i = 0; i < data.size(); ++i) {
     std::cout << '\t' << i;
   }
   std::cout << std::endl;
-  for (int i = 0; i < data.size(); ++i) {
+  for (size_t i = 0; i < data.size(); ++i) {
     std::cout << i << '\t';
-    for (int j = 0; j < data.size(); ++j) {
+    for (size_t j = 0; j < data.size(); ++j) {
       std::cout << distance(data[i], data[j]) << '\t';
     }
     std::cout << std::endl;
@@ -53,12 +53,13 @@ void compute_matrix_distance(std::vector<std::vector<double>> &data) {
 }
 
 void test_HC(std::string input_file, std::string output_file, double epsilon) {
+  std::cout << "test HC" << std::endl;
   int n, d;
   auto data = read_file(input_file, n, d);
   std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl;
   //compute_matrix_distance(data);
   int bucket = 3;
-  int bins = (int)floor(std::pow(n, 1/2.0));
+  int bins = 10;//(int)floor(std::pow(n, 1/2.0));
   int run_time = 5 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
   clock_t start = clock();
@@ -71,9 +72,9 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 int main() {
 
   //test_nn_cluster();
-  std::vector<std::string> data_names = {"news_5000_100"};
+  std::vector<std::string> data_names = {"digits"};
   for (auto&& name : data_names) {
-    test_HC(name + ".in", name + ".out", 1);
+    test_HC(name + ".in", name + ".out", 2);
   }
   return 0;
 }

@@ -170,7 +170,7 @@ def app_lsh_ward(data_file, input_file, size):
     clustering = ward.fit(data)
     clust = clustering.labels_
     print('std_ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
-    
+
 #
 #         for name in data_sets:
 #             data, n, labels, k = get_dataset(name)
@@ -293,7 +293,7 @@ def epsilons_perf():
 #for u in labels:
 #    print (u)
 def simple_exp():
-    data_name = ['iris', 'cancer', 'digits', 'boston']
+    data_name = ['digits']
     for name in data_name:
         print(name)
         data, n, labels, k = get_dataset(name)
@@ -305,5 +305,5 @@ def simple_exp():
         clust = clusters(T, k)
         print('approx' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)))
 
-app_lsh_ward('news_5000_100.in', 'news_5000_100.out', 5000)
-#simple_exp()
+#app_lsh_ward('news_5000_100.in', 'news_5000_100.out', 5000)
+simple_exp()

@@ -63,11 +63,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[{i, p.first}];
-	  double tmp_dist;
-    if (false)
-      tmp_dist = p.second * p.second; //recheck
-    else
-      tmp_dist = distance(query_size, tmp_size, p.second);
+	  double tmp_dist = distance(query_size, tmp_size, p.second);
 
     //std::cout << "tmp distance " << tmp_dist << " tmp_size " << tmp_size <<  " distance " << p.second << '\n';
     if (tmp_dist <= min_distance) {

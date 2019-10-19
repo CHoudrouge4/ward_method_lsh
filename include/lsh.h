@@ -26,12 +26,17 @@
 #include <map>
 #include <random>
 #include <vector>
+#include <unordered_set>
 
+
+
+using std::unordered_set;
 using std::map;
 using std::max;
 using std::min;
 using std::pair;
 using std::vector;
+
 
 class LSHDataStructure {
  public:
@@ -41,9 +46,9 @@ class LSHDataStructure {
   // return the ID (i.e.:the id specified upon insertion)
   // of the elements in the DS that is the ANN
   // Function makes at most running_time comparisons
-  pair<int,double> QueryPoint(const vector<double> &coordinates, int running_time);
+    pair<int,double> QueryPoint(const vector<double> &coordinates, int running_time);
 
-  // TODO(cohenaddad):
+
   // remove the point that has been inserted with this id
   void RemovePoint(int id);
 
@@ -54,10 +59,6 @@ class LSHDataStructure {
   // constructor
   LSHDataStructure(int bucket_size, int nb_bins1, int dimension);
 
-
-  // it was private
-  // maps : id -> coordinates of the inserted points
-  map<int, vector<double> > points_;
  private:
   // Compute L_2 norm between two points
   double SqrDist(const vector<double> &p1, const vector<double> &p2);
@@ -72,7 +73,8 @@ class LSHDataStructure {
   // parameter of LSH; roughly size of the bins
   int r_;
 
-
+  // maps : id -> coordinates of the inserted points
+  map<int, vector<double> > points_;
 
   // n^{1/gamma} hash functions, each hash function maps to N_+
   vector<pair<int, vector<double> > > projectors_;
@@ -80,10 +82,10 @@ class LSHDataStructure {
   // the non-empty bins of the hash functions (the ones populated by
   // inserted points) and the list
   // of points contained in the bin
-  vector<map<int, vector<int> > > bins_collection_;
+  vector<map<int, unordered_set<int> > > bins_collection_;
 
   // maps each inserted point to the list of bins it belongs to
-  map<int, vector<int> > points_to_bins_;
+    map<int, vector<pair<int,int>> > points_to_bins_;
 };
 
 
