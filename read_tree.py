@@ -259,7 +259,6 @@ def readFILE(file_name):
 #print(k)
 ## e psilon, number_of_visited_leafs, number_of_trees, dimension
 
-
 def exp_sizes_acc():
     sizes = 100
     while sizes < 11314:
@@ -283,7 +282,6 @@ def epsilons_perf():
     epsilons = [50, 100, 200, 400, 800, 1000]
     for e in epsilons:
         approx_vs_ward(e, 32, 16, 'news' + str(sizes), 2164, sizes)
-
 
 #epsilons_perf()
 #leaves_perf()

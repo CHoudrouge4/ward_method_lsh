@@ -71,7 +71,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
-       std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
+    //   std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
        nnc.delete_cluster(u, u_weight); // we delete the cluster because it is the nn of itself
 
        auto t = nnc.query(res, u_weight);
@@ -98,7 +98,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         existed[{std::get<0>(t), std::get<2>(t)}] = false;
 
         to_erase.push_back({std::get<0>(t), std::get<2>(t)});
-        std::cout << "nn_id nn_weight " << std::get<0>(t) << ' ' << std::get<2>(t) << std::endl;
+        //std::cout << "nn_id nn_weight " << std::get<0>(t) << ' ' << std::get<2>(t) << std::endl;
         nnc.delete_cluster(std::get<0>(t), std::get<2>(t));
 
         lambda.erase({u, u_weight});
