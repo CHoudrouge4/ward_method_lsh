@@ -76,27 +76,36 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 }
 
 // I should add the cluster to the array of points
-int nnCluster::add_cluster(const std::vector<double> &query, int cluster_size, int id) {
+void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id) {
 	    int idx = floor(log_base(cluster_size, 1 + epsilon));
-      nn_data_structures[idx].InsertPoint(id, query);
+      id_ds[id] = idx;
+      nn_data_structures[idx].InsertPoint(id, cluster);
 			sizes[idx] = sizes[idx] + 1;
       cluster_weight[{idx, id}] = cluster_size ;
-      if(id >= points.size()) points.push_back(query);
-			return idx;
+      if(id >= points.size()) points.push_back(cluster);
+}
+
+void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
+  int ds = id_ds[id];
+  nn_data_structures[ds].InsertPoint(id, cluster);
+  sizes[ds] = sizes[ds] + 1;
+  //cluster_weight[{idx, id}] = cluster_size ;
+  if(id >= points.size()) points.push_back(cluster);
 }
 
 /**
 * TO CHANGE
 */
 void nnCluster::delete_cluster(int idx, int size) {
-  int i = (int) floor(log_base(size, 1 + epsilon));// I think it is wrong
+  //int i = (int) floor(log_base(size, 1 + epsilon));// I think it is wrong
+  int i = id_ds[idx];
   nn_data_structures[i].RemovePoint(idx);
 	sizes[i] = sizes[i] - 1;
 }
 
-std::vector<double> nnCluster::get_point(int idx) {
-	return points[idx];
-}
+// inline std::vector<double> nnCluster::get_point(int idx) {
+// 	return points[idx];
+// }
 
 // good + need review
 double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed) {
@@ -106,8 +115,6 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
     delete_cluster(i, 1);
     auto t = query(res, 1);
 		min_dis = std::min(2 * std::get<1>(t), min_dis);
-
-    iszero(min_dis < 0);
 
 		add_cluster(res, 1, i);
 		dict[{i, 1}] = {i, 1};

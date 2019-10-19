@@ -8,12 +8,12 @@
 #include <vector>
 
 #include <unordered_set>
-
+#include <unordered_map>
 #include "lsh.h"
 
 
 using std::unordered_set;
-using std::map;
+using std::unordered_map;
 using std::max;
 using std::min;
 using std::pair;
@@ -50,7 +50,7 @@ void LSHDataStructure::InsertPoint(int id, const vector<double> &coordinates) {
   vector < pair < int, int >> proj_with_id;
 
   for (int i = 0; i < nb_bins_; i++) {
-    map<int, unordered_set<int>>::iterator it_bin;
+    unordered_map<int, unordered_set<int>>::iterator it_bin;
     int pos = 0;
     it_bin = bins_collection_[i].find(proj[i]);
     if (it_bin != bins_collection_[i].end()) {
@@ -71,12 +71,15 @@ void LSHDataStructure::InsertPoint(int id, const vector<double> &coordinates) {
 
 
 void LSHDataStructure::RemovePoint(int id){
-    map<int,vector<double>>::iterator it;
+    unordered_map<int,vector<double>>::iterator it;
     it = points_.find(id);
-    if(it == points_.end()) return;
+    if(it == points_.end()) {
+//      std::cout << "id " << id << std::endl;
+      return;
+    }
     points_.erase(it);
 
-    map<int,vector<pair<int,int>>>::iterator it_to_bins;
+    unordered_map<int,vector<pair<int,int>>>::iterator it_to_bins;
     it_to_bins = points_to_bins_.find(id);
 
     vector < pair<int,int> > proj =  it_to_bins->second;
@@ -84,16 +87,9 @@ void LSHDataStructure::RemovePoint(int id){
     for(int i = 0; i < bins_collection_.size(); i++){
     	int bin = (proj[i]).first;
     	int pos = (proj[i]).second;
-    	map<int,unordered_set<int>>::iterator it_bins;
+    	unordered_map<int,unordered_set<int>>::iterator it_bins;
     	it_bins = bins_collection_[i].find(bin);
     	(it_bins->second).erase(id);
-	// this is slow
-//	for (int j = 0; j < (it_bins->second).size(); j++){
-//	    if((it_bins->second)[j] == id){
-//		(it_bins->second).erase((it_bins->second).begin()+j);
-//		break;/
-//	    }
-//    }
     }
 }
 
@@ -108,13 +104,13 @@ pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates
   int id = points_.begin()->first;
   double min_dist = SqrDist(points_.begin()->second, coordinates);
 
+  unordered_map<int, unordered_set<int>>::iterator it_bin;
   for (int i = 0; i < nb_bins_; i++) {
-    map<int, unordered_set<int>>::iterator it_bin;
     it_bin = bins_collection_[i].find(proj[i]);
     if (it_bin == bins_collection_[i].end()) continue;
     unordered_set<int> myset = (it_bin->second);
     for ( auto it = myset.begin(); it != myset.end(); ++it ){
-      map<int, vector<double>>::iterator p;
+      unordered_map<int, vector<double>>::iterator p;
       p = points_.find(*it);
       double d = SqrDist(coordinates, p->second);
       if (d < min_dist) {
@@ -133,7 +129,7 @@ pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates
 void LSHDataStructure::Print() {
   for (int i = 0; i < nb_bins_; i++) {
     std::cout << "Hash fun #" << i << std::endl;
-    for (std::map<int, unordered_set<int>>::iterator it = bins_collection_[i].begin();
+    for (std::unordered_map<int, unordered_set<int>>::iterator it = bins_collection_[i].begin();
          it != bins_collection_[i].end(); ++it) {
       std::cout << "Bin #" << it->first << ":  ";
       for ( auto it2 = (it->second).begin(); it2 != (it->second).end();
@@ -165,8 +161,8 @@ LSHDataStructure::LSHDataStructure(int bucket_size, int nb_bins1,
       coordinates.push_back(distrib(generator));
     }
     projectors_.push_back(pair<int, vector<double>>(offset, coordinates));
-    map<int, unordered_set<int>> new_map;
-    bins_collection_.push_back(new_map);
+    unordered_map<int, unordered_set<int>> new_unordered_map;
+    bins_collection_.push_back(new_unordered_map);
   }
 }
 

@@ -62,6 +62,7 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   int bins = 10;//(int)floor(std::pow(n, 1/2.0));
   int run_time = 5 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
+  std::cout << "start building" << std::endl;
   clock_t start = clock();
   hc.build_hierarchy();
   clock_t end = clock();
@@ -72,7 +73,7 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 int main() {
 
   //test_nn_cluster();
-  std::vector<std::string> data_names = {"digits"};
+  std::vector<std::string> data_names = {"iris", "boston", "cancer", "digits"};
   for (auto&& name : data_names) {
     test_HC(name + ".in", name + ".out", 2);
   }

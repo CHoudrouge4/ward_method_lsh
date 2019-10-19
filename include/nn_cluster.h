@@ -52,8 +52,8 @@ public:
   * cluster size
   *
   */
-  int add_cluster(const std::vector<double> &cluster, const int cluster_size, int id);
-
+  void add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id);
+  void put_back(const std::vector<double> &cluster, const int id);
   /**
   * This function deletes a cluseter with the id = idx, and weight = size.
   */
@@ -62,7 +62,9 @@ public:
   /**
   * This function returns the coordinates of the centroid with id = idx, and weight = size
   */
-  std::vector<double> get_point(int idx);
+  std::vector<double> get_point(int idx) {
+    	return points[idx];
+  }
 
   /**
   * This function returns the number of data structures.
@@ -110,4 +112,6 @@ private:
   // this maps helps in having a unique ID for each cluster.
   std::unordered_map<pair_int, pair_int> dict;
   // std::unordered_map<pair_int, int> idx_index;
+  std::unordered_map<int, int> id_ds;
+
 };

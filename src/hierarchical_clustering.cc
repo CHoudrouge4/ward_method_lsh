@@ -33,6 +33,7 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
                                                                dimension(d),
                                                                size(n),
                                                                epsilon(epsilon_) {
+  merged_cluster = std::vector<double> (dimension);
   last_index = data.size();
   max_dist = nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
@@ -49,51 +50,40 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
 * new_centroid = ((size_a * mu_a) + (size_b * mu_b))/(size_a + size_b).
 *
 */
-std::vector<double> hierarchical_clustering::merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b) {
+void hierarchical_clustering::merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b) {
   double den = size_a + size_b;
   double coeff_a = size_a / den; // make sure if this is efficient
   double coeff_b = size_b / den;
-  std::vector<double> res(dimension);
   for (int i = 0; i < dimension; ++i)
-    res[i] = coeff_a * mu_a[i] + coeff_b * mu_b[i];
-  return res;
+    merged_cluster[i] = coeff_a * mu_a[i] + coeff_b * mu_b[i];
 }
 
 // create a vector for the next round
 std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &to_merge, double merge_value) {
-  std::unordered_set <pair_int> unchecked; // this one should be placed maybe in different place, maybe it should be in the fields
-  std::vector<double> merged_cluster;
-//  merged_cluster.reserve(dimension);
-  int merged_weight;
+  unchecked.clear();
   for (auto&& p : to_merge) {
-     if(existed[p] && p.w < size) {
-       bool entered = false;
+     auto it = existed.find(p);
+     if(it == existed.end()) continue;
+     if(it->second && p.w < size) {
        int u = p.id;
        int u_weight = p.w;
-      // std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
        if(u_weight == 0) continue;
        to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
+       std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
        nnc.delete_cluster(u, u_weight); // we delete the cluster because it is the nn of itself
 
        auto t = nnc.query(res, u_weight);
-       double dist  = std::get<1>(t); // getting the distance
+       double dist  = std::get<1>(t);
        int t_weight = std::get<2>(t);
        //std::cout << "comparing distance and merge values " << std::get<0>(t) << ' ' << u << ' ' << dist << " ? " << merge_value << std::endl;
        if (dist <= merge_value) {
-         entered = true;
          auto nn_pt = nnc.get_point(std::get<0>(t));
 
-         merged_cluster = merge(res, nn_pt, u_weight, t_weight);
+         merge(res, nn_pt, u_weight, t_weight);
          merged_weight = u_weight + t_weight;
 
-        // insert the merged cluster in lambda to check it again in this round, (easy)
-        // or we can do while then remove it
-        // register the operation
-
-
-        // add the cluster to the data strcture -- check
         pair_int mc = std::make_pair(last_index, merged_weight);
         nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
         unchecked.insert(mc);
@@ -108,6 +98,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         existed[{std::get<0>(t), std::get<2>(t)}] = false;
 
         to_erase.push_back({std::get<0>(t), std::get<2>(t)});
+        std::cout << "nn_id nn_weight " << std::get<0>(t) << ' ' << std::get<2>(t) << std::endl;
         nnc.delete_cluster(std::get<0>(t), std::get<2>(t));
 
         lambda.erase({u, u_weight});
@@ -118,41 +109,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
           break;
         }
       } else {
-        /**
-        * If we did not have a merge in the during the process what we should
-        * do?
-        * -> reinsert the coordinates of p in the data structure
-        * -> is existed still true ?
-        * -> should we inserted in lambda ?
-        */
-       // assert(res_ != nullptr);
-       // since we did not mege the cluster we have to take some action
-
-       nnc.add_cluster(res, u_weight, u);
-       existed[{u, u_weight}] = true;
-       //lambda.insert({u, u_weight});
+        nnc.put_back(res, u);
       }
-
       // should we have these in this place ?
       if(u_weight >= size) break;
       if(u_weight == 0) break;
-
-      //if(entered) {
-        /**
-        * add the merged to the next round, I can do it above or here ?!!
-        */
-        // I already did these actions
-        //auto tt = nnc.query(merged_cluster, merged_weight, true);
-        //nnc.update_size(idx, std::get<0>(tt), merged_weight);
-
-        //tt = nnc.query(merged_cluster, merged_weight, true);
-
-        //existed[{std::get<0>(tt), merged_weight}] = true;
-        // do I need this?
-        //unchecked.insert({std::get<0>(tt), merged_weight});
-        //nnc.update_dict(std::get<0>(tt), merged_weight, u, u_weight);
-      //}
-
       }
    }
 

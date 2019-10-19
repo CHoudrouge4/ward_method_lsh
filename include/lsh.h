@@ -23,7 +23,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <limits>
-#include <map>
+#include <unordered_map>
 #include <random>
 #include <vector>
 #include <unordered_set>
@@ -31,7 +31,7 @@
 
 
 using std::unordered_set;
-using std::map;
+using std::unordered_map;
 using std::max;
 using std::min;
 using std::pair;
@@ -73,19 +73,19 @@ class LSHDataStructure {
   // parameter of LSH; roughly size of the bins
   int r_;
 
-  // maps : id -> coordinates of the inserted points
-  map<int, vector<double> > points_;
+  // unordered_maps : id -> coordinates of the inserted points
+  unordered_map<int, vector<double> > points_;
 
-  // n^{1/gamma} hash functions, each hash function maps to N_+
+  // n^{1/gamma} hash functions, each hash function unordered_maps to N_+
   vector<pair<int, vector<double> > > projectors_;
 
   // the non-empty bins of the hash functions (the ones populated by
   // inserted points) and the list
   // of points contained in the bin
-  vector<map<int, unordered_set<int> > > bins_collection_;
+  vector<unordered_map<int, unordered_set<int> > > bins_collection_;
 
-  // maps each inserted point to the list of bins it belongs to
-    map<int, vector<pair<int,int>> > points_to_bins_;
+  // unordered_maps each inserted point to the list of bins it belongs to
+    unordered_map<int, vector<pair<int,int>> > points_to_bins_;
 };
 
 

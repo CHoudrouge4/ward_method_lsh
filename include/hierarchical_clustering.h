@@ -29,16 +29,16 @@ private:
   nnCluster nnc;   // a nearest neighbour data structure for clusters
 
   bool stop = false;
-
+  int merged_weight;
+  std::vector<double> merged_cluster;
   std::vector<std::pair<pair_int, pair_int>> merges;
   std::unordered_map<pair_int, bool, pairhash> existed;
   std::unordered_set<pair_int> lambda;
   std::unordered_set<pair_int> unmerged_clusters;
   std::vector<std::tuple<pair_int, pair_int, pair_int>> output;
   std::vector<pair_int> to_erase;
-
-  std::vector<double> merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b);
-
+  void merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b);
+  std::unordered_set <pair_int> unchecked;
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, double merge_value);
 
 public:
