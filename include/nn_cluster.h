@@ -5,9 +5,6 @@
 #include <unordered_set>
 #include <memory>
 
-// add map from size to index
-// store the points in a map int -> vec
-
 typedef std::pair<int, int> pair_int;
 
 /**
@@ -23,19 +20,6 @@ namespace std {
   };
 }
 
-/**
-* Struct that implements a hash function for pair of integers
-*
-*/
-struct pairhash {
-private:
-  const size_t num = 65537;
-public:
-  inline size_t operator()(const std::pair<int, int> &x) const {
-    return (x.first * num) ^ x.second;
-  }
-};
-
 class nnCluster {
 public:
   // Constructor
@@ -50,14 +34,13 @@ public:
   /**
   * This function adds a cluster to the data clusters of the clusters of size
   * cluster size
-  *
   */
   void add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id);
   void put_back(const std::vector<double> &cluster, const int id);
   /**
   * This function deletes a cluseter with the id = idx, and weight = size.
   */
-  void delete_cluster(int idx, int size);
+  void delete_cluster(int idx);
 
   /**
   * This function returns the coordinates of the centroid with id = idx, and weight = size
@@ -74,7 +57,7 @@ public:
   /**
   * This function computes and returns the minimum distance between all the cluster.
   */
-  double compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed);
+  double compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool> &existed);
 
   /**
   * This function computes and returns an approximation of the maximum distance between all the clusters.
@@ -82,8 +65,6 @@ public:
   double compute_max_dist(const std::vector<std::vector<double>> &points, const int n, const int d);
 
   pair_int get_index(int index, int weight);
-
-  void update_dict(int new_idx, int new_weight, int old_idx, int old_weight);
 
   void update_size(int ds_index, int new_index, int size);
 
@@ -98,8 +79,6 @@ private:
 
   // this vectors stores the nearest neighbour data structures
   std::vector<LSHDataStructure> nn_data_structures;
-  // entry i equals to true of the ith data structures is built
-  std::vector<bool> build;
   // the number of points inside each data structures
   std::vector<int> sizes;
 
@@ -109,8 +88,6 @@ private:
   // maps the cluster to its weight, the cluster is uniquely determined by
   // the index of the data structure and its index.
   std::unordered_map<std::pair<int, int>, int> cluster_weight;
-  // this maps helps in having a unique ID for each cluster.
-  std::unordered_map<pair_int, pair_int> dict;
   // std::unordered_map<pair_int, int> idx_index;
   std::unordered_map<int, int> id_ds;
 

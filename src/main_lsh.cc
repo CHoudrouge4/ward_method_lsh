@@ -26,7 +26,7 @@ void test_nn_cluster() {
   nnCluster nnc(p, n, m, 0.9,1,1,1);
 
   std::unordered_set<pair_int> unmerged_clusters;
-  std::unordered_map<pair_int, bool, pairhash> existed;
+  std::unordered_map<pair_int, bool> existed;
   double dd = nnc.compute_min_dist(unmerged_clusters, existed);
 }
 
@@ -62,18 +62,18 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   int bins = 10;//(int)ceil(std::pow(n, 1/10.0));
   int run_time = 5 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
-  std::cout << "start building" << std::endl;
-  clock_t start = clock();
-  hc.build_hierarchy();
-  clock_t end = clock();
-  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
-  hc.print_file(output_file);
+  // std::cout << "start building" << std::endl;
+  // clock_t start = clock();
+  // hc.build_hierarchy();
+  // clock_t end = clock();
+  // std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+  // hc.print_file(output_file);
 }
 
 int main() {
 
   //test_nn_cluster();
-  std::vector<std::string> data_names = {"news_11314_4"};
+  std::vector<std::string> data_names = {"iris"};
   for (auto&& name : data_names) {
     test_HC(name + ".in", name + ".out", 10);
   }

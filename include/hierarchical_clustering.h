@@ -32,7 +32,7 @@ private:
   int merged_weight;
   std::vector<double> merged_cluster;
   std::vector<std::pair<pair_int, pair_int>> merges;
-  std::unordered_map<pair_int, bool, pairhash> existed;
+  std::unordered_map<pair_int, bool> existed;
   std::unordered_set<pair_int> lambda;
   std::unordered_set<pair_int> unmerged_clusters;
   std::vector<std::tuple<pair_int, pair_int, pair_int>> output;

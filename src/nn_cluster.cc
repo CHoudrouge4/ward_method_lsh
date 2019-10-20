@@ -5,11 +5,8 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <assert.h>
 
-/**
-* TODO: add point by pushing back to the std::vector
-* Question: is the distance of LSH squared ?
-*/
 inline double log_base(double num, double base) { return std::log(num) / std::log(base); }
 
 // maybe it should be named delta_ess
@@ -19,34 +16,26 @@ inline double nnCluster::distance(int size_a, int size_b, double dist) {
 
 //constructor
 nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, double epsilon_, int bucket, int bins, int run_time):
-				size(n), dimension(d), epsilon(epsilon_) {
-
-  bucket_size = bucket;
-  nb_bins = bins;
-  running_time = run_time;
+				size(n), dimension(d), epsilon(epsilon_), bucket_size(bucket), nb_bins(bins), running_time(run_time) {
 
 	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
 	number_of_data_structure = (std::max(nb_ds, 1))  + 5;
 	points = std::vector<std::vector<double>>(points_);
 
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
+  nn_data_structures.reserve(number_of_data_structure);
 
-	LSHDataStructure index(bucket_size, nb_bins, d); // change the number of bucket later // parametrise it
-	// insert the points
-	for (size_t i = 0; i < points_.size(); ++i) {
-		index.InsertPoint(i, points_[i]);
-		cluster_weight[{0, i}] = 1;
-	}
 
-	build = std::vector<bool>(number_of_data_structure, false);
-	sizes = std::vector<int> (number_of_data_structure, 0);
-	nn_data_structures.reserve(number_of_data_structure);
-	sizes[0] = n;
-	nn_data_structures.push_back(index);
-	for (int i = 1; i < number_of_data_structure; ++i) {
-		LSHDataStructure idx(bucket_size , nb_bins, d);
+  sizes = std::vector<int> (number_of_data_structure, 0);
+  assert(sizes.size() == number_of_data_structure);
+
+	for (int i = 0; i < number_of_data_structure; ++i) {
+		LSHDataStructure idx(bucket , bins, d);
 	  nn_data_structures.push_back(idx);
 	}
+
+  for (size_t i = 0; i < points_.size(); ++i) add_cluster(points_[i], 1, 1);
+
 }
 
 /**
@@ -60,7 +49,6 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
     if (sizes[i] <= 0) continue;
 
 	 	auto p = nn_data_structures[i].QueryPoint(query, running_time);
-
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[{i, p.first}];
 	  double tmp_dist = distance(query_size, tmp_size, p.second);
@@ -78,17 +66,18 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 // I should add the cluster to the array of points
 void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id) {
 	    int idx = floor(log_base(cluster_size, 1 + epsilon));
-      id_ds[id] = idx;
+      id_ds.insert({id, idx});
       nn_data_structures[idx].InsertPoint(id, cluster);
-			sizes[idx] = sizes[idx] + 1;
-      cluster_weight[{idx, id}] = cluster_size ;
+			sizes[idx]++;
+      cluster_weight[{idx, id}] = cluster_size;
+      assert(sizes[idx] <= size);
       if(id >= points.size()) points.push_back(cluster);
 }
 
 void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
   int ds = id_ds[id];
   nn_data_structures[ds].InsertPoint(id, cluster);
-  sizes[ds] = sizes[ds] + 1;
+  sizes[ds]++;
   //cluster_weight[{idx, id}] = cluster_size ;
   if(id >= points.size()) points.push_back(cluster);
 }
@@ -96,31 +85,28 @@ void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
 /**
 * TO CHANGE
 */
-void nnCluster::delete_cluster(int idx, int size) {
-  //int i = (int) floor(log_base(size, 1 + epsilon));// I think it is wrong
+void nnCluster::delete_cluster(int idx) {
+  assert(id_ds.find(idx) != id_ds.end());
   int i = id_ds[idx];
+  std::cout << "ds index : " << i << std::endl;
   nn_data_structures[i].RemovePoint(idx);
-	sizes[i] = sizes[i] - 1;
+	sizes[i]--;
+  assert(sizes[i] >= 0);
 }
 
-// inline std::vector<double> nnCluster::get_point(int idx) {
-// 	return points[idx];
-// }
-
 // good + need review
-double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed) {
+double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool> &existed) {
   double min_dis = std::numeric_limits<double>::max();
 	for (int i = 0; i < size; ++i) {
+
   	auto res = get_point(i);
-    delete_cluster(i, 1);
+
+    delete_cluster(i);
+
     auto t = query(res, 1);
 		min_dis = std::min(2 * std::get<1>(t), min_dis);
 
-		add_cluster(res, 1, i);
-		dict[{i, 1}] = {i, 1};
-
-
-		dict[{i, 1}] = {i, 1};
+		put_back(res, 1);
 		cluster_weight[{0, i}] = 1;
 
 		unmerged_clusters.insert({i, 1});
@@ -132,16 +118,6 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
 // GOOD
 int nnCluster::get_number_of_data_structures() const {
   return nn_data_structures.size();
-}
-
-// to use while building the representation
-pair_int nnCluster::get_index(int index, int weight) {
-	return dict[std::make_pair(index, weight)];
-}
-
-// we can later use one weight
-void nnCluster::update_dict(int new_idx, int new_weight, int old_idx, int old_weight) {
-	dict[{new_idx, new_weight}] = dict[{old_idx, old_weight}];
 }
 
 void nnCluster::update_size(int ds_index, int new_index, int size) {

@@ -7,15 +7,7 @@
 #include <tuple>
 #include <utility>
 #include <sstream>
-
-/**
-* TODO:
-*   Remove the log_base_ funstion
-*   check the precision of fpa
-*   make unchecked a field
-*   don't use tuples if possible
-*   make the removal of elments from the unordered_map faster.
-*/
+#include <assert.h>
 
 #define id first
 #define w second
@@ -38,6 +30,7 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
   max_dist = nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
+  std::cout << "min distance: " << min_dist << std::endl; 
   for (auto && p: unmerged_clusters) lambda.insert(p);
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / double
   output.reserve(n);
@@ -48,7 +41,6 @@ hierarchical_clustering::hierarchical_clustering(std::vector<std::vector<double>
 * this function takes the centroid of two clusters and computes the new centroid
 * based on the following formula.
 * new_centroid = ((size_a * mu_a) + (size_b * mu_b))/(size_a + size_b).
-*
 */
 void hierarchical_clustering::merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b) {
   double den = size_a + size_b;
@@ -63,7 +55,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
   unchecked.clear();
   for (auto&& p : to_merge) {
      auto it = existed.find(p);
-     if(it == existed.end()) continue;
+     if(it == existed.end()) {
+       to_erase.push_back(p);
+       continue;
+     }
+
      if(it->second && p.w < size) {
        int u = p.id;
        int u_weight = p.w;
@@ -71,8 +67,9 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
-    //   std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
-       nnc.delete_cluster(u, u_weight); // we delete the cluster because it is the nn of itself
+       std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
+       nnc.delete_cluster(u); // we delete the cluster because it is the nn of itself
+       assert(u > 0 && u < 2 * (size + 1) + 1);
 
        auto t = nnc.query(res, u_weight);
        double dist  = std::get<1>(t);
@@ -99,7 +96,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 
         to_erase.push_back({std::get<0>(t), std::get<2>(t)});
         //std::cout << "nn_id nn_weight " << std::get<0>(t) << ' ' << std::get<2>(t) << std::endl;
-        nnc.delete_cluster(std::get<0>(t), std::get<2>(t));
+        nnc.delete_cluster(std::get<0>(t));
 
         lambda.erase({u, u_weight});
         lambda.erase({std::get<0>(t), std::get<2>(t)});
@@ -108,12 +105,12 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
           stop = true;
           break;
         }
-      } else {
-        nnc.put_back(res, u);
-      }
+        } else {
+          nnc.put_back(res, u);
+        }
       // should we have these in this place ?
-      if(u_weight >= size) break;
-      if(u_weight == 0) break;
+        if(u_weight >= size) break;
+        if(u_weight == 0) break;
       }
    }
 
@@ -149,8 +146,7 @@ void hierarchical_clustering::build_hierarchy() {
    if(the_merged_cluster.size() == 1) unmerged_clusters.insert(*the_merged_cluster.begin());
    for(auto&& m: lambda) unmerged_clusters.insert(m);
 
-  //  lambda.clear();
-    if(unmerged_clusters.size() <= 1) break;
+  //  if(unmerged_clusters.size() <= 1) break;
   }
 }
 

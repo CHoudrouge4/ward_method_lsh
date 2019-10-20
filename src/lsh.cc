@@ -74,7 +74,7 @@ void LSHDataStructure::RemovePoint(int id){
     unordered_map<int,vector<double>>::iterator it;
     it = points_.find(id);
     if(it == points_.end()) {
-//      std::cout << "id " << id << std::endl;
+      std::cout << "#id " << id << std::endl;
       return;
     }
     points_.erase(it);
@@ -99,6 +99,7 @@ pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates
   // 1. Get the projection: i.e. a list of bins b_1,...,b_nb_bins
   // 2. Consider the elements in the bins b_1,.., b_nb_bins up to a fixed budget
   // 3. Output the closest one.
+  if(points_.size() == 0) return {-1, 0.0};
   vector<int> proj = Project(coordinates);
   int nb_comparisons = 0;
   int id = points_.begin()->first;
@@ -114,9 +115,9 @@ pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates
       p = points_.find(*it);
       double d = SqrDist(coordinates, p->second);
       if (d < min_dist) {
-	  min_dist = d;
-	  id = p->first;
-	  nb_comparisons++;
+    	  min_dist = d;
+    	  id = p->first;
+    	  nb_comparisons++;
       }
       if (nb_comparisons > running_time) return pair<int,double>(id,min_dist);
     }
