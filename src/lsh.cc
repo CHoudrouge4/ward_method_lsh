@@ -22,7 +22,6 @@ using std::vector;
 double LSHDataStructure::SqrDist(const vector<double>& p1,
                                  const vector<double>& p2) {
   double d = 0;
-  std::cout << "p1 " << p1.size() << ' ' << p2.size() << std::endl;
   for (int i = 0; i < p1.size(); i++) {
     d += (p1[i] - p2[i]) * (p1[i] - p2[i]);
   }
@@ -78,7 +77,7 @@ void LSHDataStructure::RemovePoint(int id){
       std::cout << "#id " << id << std::endl;
       return;
     }
-    points_.erase(it);
+    points_.erase(id);
 
     unordered_map<int,vector<pair<int,int>>>::iterator it_to_bins;
     it_to_bins = points_to_bins_.find(id);

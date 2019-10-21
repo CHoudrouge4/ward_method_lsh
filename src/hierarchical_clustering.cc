@@ -34,7 +34,11 @@ hierarchical_clustering::hierarchical_clustering(std::vector<point> &data, int n
   last_index = data.size();
   max_dist = nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
+  existed = std::vector<bool>(size * 2, false);
+  std::cout << "first min dist " << std::endl;
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
+  std::cout << "second min dist " << std::endl;
+  min_dist =  nnc.compute_min_dist(unmerged_clusters, existed);
   std::cout << "MINIMUM distance: " << min_dist << std::endl;
 
   for (auto && p: unmerged_clusters) lambda.insert(p);
@@ -60,18 +64,20 @@ void hierarchical_clustering::merge(point &mu_a, point &mu_b, int size_a, int si
 std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &to_merge, double merge_value) {
   unchecked.clear();
   for (auto&& p : to_merge) {
-     auto it = existed.find(p);
-     if(it == existed.end()) {
-       to_erase.push_back(p);
+     if(!existed[p.id]) {
+       //std::cout << "here" << std::endl;
+       //to_erase.push_back(p);
        continue;
      }
 
-     if(existed[p] && p.w < size) {
+     assert(p.w <= size);
+     if(existed[p.id] && p.w < size) {
        int u = p.id;
        int u_weight = p.w;
-       assert(u_weight <= size);
+       existed[p.id] = false;
+
        assert(u_weight > 0);
-       to_erase.push_back({u, u_weight});
+       //to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
        std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
@@ -81,7 +87,6 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        auto t = nnc.query(res, u_weight);
        double dist  = std::get<1>(t);
        int t_weight = std::get<2>(t);
-       //std::cout << "comparing distance and merge values " << std::get<0>(t) << ' ' << u << ' ' << dist << " ? " << merge_value << std::endl;
        if (dist <= merge_value) {
          auto nn_pt = nnc.get_point(std::get<0>(t));
          merge(res, nn_pt, u_weight, t_weight);
@@ -91,16 +96,15 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
          nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
          unchecked.insert(mc);
          lambda.insert(mc);
-         existed[mc] = true;
+         existed[last_index] = true;
          // register the merge operation
          output.push_back(std::make_tuple(std::make_pair(last_index, merged_weight),
          std::make_pair(u, u_weight), std::make_pair(std::get<0>(t), std::get<2>(t))));
 
          last_index++;
-         existed[p] = false;
-         existed[{std::get<0>(t), std::get<2>(t)}] = false;
+         existed[std::get<0>(t)] = false;
 
-         to_erase.push_back({std::get<0>(t), std::get<2>(t)});
+         //to_erase.push_back({std::get<0>(t), std::get<2>(t)});
          //std::cout << "nn_id nn_weight " << std::get<0>(t) << ' ' << std::get<2>(t) << std::endl;
          nnc.delete_cluster(std::get<0>(t));
 
@@ -113,6 +117,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
          }
         } else {
           nnc.put_back(res, u);
+          existed[p.id] = true;
         }
       // should we have these in this place ?
         assert(u_weight <= size);
@@ -122,10 +127,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
    }
 
    // deleting the merged clusters
-   for(size_t i = 0; i < to_erase.size(); ++i) {
-     to_merge.erase(to_erase[i]);
-   }
-   to_erase.clear();
+   // for(size_t i = 0; i < to_erase.size(); ++i) {
+   //   to_merge.erase(to_erase[i]);
+   // }
+
+   //to_erase.clear();
    return unchecked;
 }
 //
@@ -136,16 +142,18 @@ void hierarchical_clustering::build_hierarchy() {
   */
   double merge_value;
   for (int i = 0; i < beta; ++i) {
+    if(lambda.size() < 2) return;
     merge_value = pow(1 + epsilon, i); // find an efficient one
     auto the_merged_cluster = helper(this->unmerged_clusters, merge_value); // these are the merges
     while (the_merged_cluster.size() > 0) {
       auto tmp = helper(the_merged_cluster, merge_value);
+      if(stop) return;
       the_merged_cluster.clear();
       for(auto&& p: tmp) {
-        existed[p] = true;
+        existed[p.id] = true;
         the_merged_cluster.insert(p);
       }
-     if(stop) break;
+
    }
 
    if(stop) return;

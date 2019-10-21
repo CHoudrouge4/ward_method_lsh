@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include <vector>
 
 // maybe it should be named delta_ess
 inline double nnCluster::distance(int size_a, int size_b, double dist) {
@@ -21,7 +22,7 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
 	number_of_data_structure = (std::max(nb_ds, 1))  + 5;
 	points = std::vector<std::vector<double>>(points_);
 
-	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
+	//std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
   nn_data_structures.reserve(number_of_data_structure);
 
 
@@ -64,12 +65,12 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 
 // I should add the cluster to the array of points
 void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id) {
-	    int idx = floor(log_base_(cluster_size, 1 + epsilon));
-      id_ds.insert({id, idx});
-      nn_data_structures[idx].InsertPoint(id, cluster);
-			sizes[idx]++;
-      cluster_weight[{idx, id}] = cluster_size;
-      assert(sizes[idx] <= size);
+	    int ds = floor(log_base_(cluster_size, 1 + epsilon));
+      id_ds.insert({id, ds});
+      nn_data_structures[ds].InsertPoint(id, cluster);
+			sizes[ds]++;
+      cluster_weight[{ds, id}] = cluster_size;
+      assert(sizes[ds] <= size);
       if(id >= points.size()) points.push_back(cluster);
 }
 
@@ -86,14 +87,15 @@ void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
 void nnCluster::delete_cluster(int idx) {
   assert(id_ds.find(idx) != id_ds.end());
   int ds = id_ds[idx];
-  std::cout << "ds index : " << ds << std::endl;
+//  std::cout << "ds index : " << ds << " ind " << idx  << " w: " << cluster_weight[{ds, idx}] << std::endl;
   nn_data_structures[ds].RemovePoint(idx);
 	sizes[ds]--;
+//  std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
   assert(sizes[ds] >= 0);
 }
 
 // good + need review
-double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool> &existed) {
+double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::vector<bool> &existed) {
   double min_dis = std::numeric_limits<double>::max();
 	for (int i = 0; i < size; ++i) {
 
@@ -107,7 +109,7 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
 		cluster_weight[{0, i}] = 1;
 
 		unmerged_clusters.insert({i, 1});
-		existed[{i, 1}] = true; // check it
+		existed[i] = true; // check it
   }
   return min_dis;
 }

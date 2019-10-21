@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
+#include <vector>
 
 typedef std::pair<int, int> pair_int;
 
@@ -57,7 +58,7 @@ public:
   /**
   * This function computes and returns the minimum distance between all the cluster.
   */
-  double compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool> &existed);
+  double compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::vector<bool> &existed);
 
   /**
   * This function computes and returns an approximation of the maximum distance between all the clusters.
