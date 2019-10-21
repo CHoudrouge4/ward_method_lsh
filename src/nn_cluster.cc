@@ -1,5 +1,6 @@
 #include "nn_cluster.h"
 #include "lsh.h"
+#include "utilities.h"
 #include <cmath>
 #include <limits>
 #include <algorithm>
@@ -7,18 +8,16 @@
 #include <sstream>
 #include <assert.h>
 
-inline double log_base(double num, double base) { return std::log(num) / std::log(base); }
-
 // maybe it should be named delta_ess
 inline double nnCluster::distance(int size_a, int size_b, double dist) {
-  return (size_a * size_b * dist) / (size_a + size_b);
+  return (size_a * size_b * dist) / ((double)size_a + size_b);
 }
 
 //constructor
 nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, double epsilon_, int bucket, int bins, int run_time):
 				size(n), dimension(d), epsilon(epsilon_), bucket_size(bucket), nb_bins(bins), running_time(run_time) {
 
-	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
+	int nb_ds = (int) ceil(log_base_(n, 1 + epsilon));
 	number_of_data_structure = (std::max(nb_ds, 1))  + 5;
 	points = std::vector<std::vector<double>>(points_);
 
@@ -26,22 +25,23 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
   nn_data_structures.reserve(number_of_data_structure);
 
 
-  sizes = std::vector<int> (number_of_data_structure, 0);
+  sizes = std::vector<int> (number_of_data_structure);
   assert(sizes.size() == number_of_data_structure);
 
 	for (int i = 0; i < number_of_data_structure; ++i) {
 		LSHDataStructure idx(bucket , bins, d);
 	  nn_data_structures.push_back(idx);
+    sizes[i] = 0;
 	}
 
-  for (size_t i = 0; i < points_.size(); ++i) add_cluster(points_[i], 1, 1);
+  for (size_t i = 0; i < points.size(); ++i) add_cluster(points[i], 1, i);
 
 }
 
 /**
 * output : id, distance, and weight (the true one)
 */
-std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, const int query_size, bool itself) {
+std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, const int query_size) {
   double min_distance = std::numeric_limits<double>::max();
   int res = -1;
   int res_index = 0;
@@ -51,9 +51,8 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 	 	auto p = nn_data_structures[i].QueryPoint(query, running_time);
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[{i, p.first}];
-	  double tmp_dist = distance(query_size, tmp_size, p.second);
-
-    //std::cout << "tmp distance " << tmp_dist << " tmp_size " << tmp_size <<  " distance " << p.second << '\n';
+    assert(tmp_size > 0);
+    double tmp_dist = distance(query_size, tmp_size, p.second);
     if (tmp_dist <= min_distance) {
       min_distance = tmp_dist;
       res = tmp_index;
@@ -65,7 +64,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 
 // I should add the cluster to the array of points
 void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id) {
-	    int idx = floor(log_base(cluster_size, 1 + epsilon));
+	    int idx = floor(log_base_(cluster_size, 1 + epsilon));
       id_ds.insert({id, idx});
       nn_data_structures[idx].InsertPoint(id, cluster);
 			sizes[idx]++;
@@ -78,7 +77,6 @@ void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
   int ds = id_ds[id];
   nn_data_structures[ds].InsertPoint(id, cluster);
   sizes[ds]++;
-  //cluster_weight[{idx, id}] = cluster_size ;
   if(id >= points.size()) points.push_back(cluster);
 }
 
@@ -87,11 +85,11 @@ void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
 */
 void nnCluster::delete_cluster(int idx) {
   assert(id_ds.find(idx) != id_ds.end());
-  int i = id_ds[idx];
-  std::cout << "ds index : " << i << std::endl;
-  nn_data_structures[i].RemovePoint(idx);
-	sizes[i]--;
-  assert(sizes[i] >= 0);
+  int ds = id_ds[idx];
+  std::cout << "ds index : " << ds << std::endl;
+  nn_data_structures[ds].RemovePoint(idx);
+	sizes[ds]--;
+  assert(sizes[ds] >= 0);
 }
 
 // good + need review
@@ -100,12 +98,11 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
 	for (int i = 0; i < size; ++i) {
 
   	auto res = get_point(i);
-
     delete_cluster(i);
 
     auto t = query(res, 1);
 		min_dis = std::min(2 * std::get<1>(t), min_dis);
-
+    assert(min_dis > 0);
 		put_back(res, 1);
 		cluster_weight[{0, i}] = 1;
 

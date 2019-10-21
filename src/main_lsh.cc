@@ -6,6 +6,9 @@
 #include <time.h>
 
 std::vector<std::vector<double>> read_file(const std::string file_name, int &n, int &m) {
+  std::random_device rd;  //Will be used to obtain a seed for the random number engine
+  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+  std::uniform_real_distribution<> dis(0.1, 0.5);
    std::ifstream in(file_name);
    int k;
    in >> n >> m;
@@ -13,6 +16,7 @@ std::vector<std::vector<double>> read_file(const std::string file_name, int &n, 
    for (int i = 0; i < n; ++i) {
      for(int j = 0; j < m; ++j) {
        in >> points[i][j];
+       points[i][j] += dis(gen);
      }
    }
    in.close();
@@ -62,12 +66,12 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   int bins = 10;//(int)ceil(std::pow(n, 1/10.0));
   int run_time = 5 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
-  // std::cout << "start building" << std::endl;
-  // clock_t start = clock();
-  // hc.build_hierarchy();
-  // clock_t end = clock();
-  // std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
-  // hc.print_file(output_file);
+  std::cout << "start building" << std::endl;
+  clock_t start = clock();
+  hc.build_hierarchy();
+  clock_t end = clock();
+  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+  hc.print_file(output_file);
 }
 
 int main() {

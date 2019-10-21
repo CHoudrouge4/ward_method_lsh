@@ -22,6 +22,7 @@ using std::vector;
 double LSHDataStructure::SqrDist(const vector<double>& p1,
                                  const vector<double>& p2) {
   double d = 0;
+  std::cout << "p1 " << p1.size() << ' ' << p2.size() << std::endl;
   for (int i = 0; i < p1.size(); i++) {
     d += (p1[i] - p2[i]) * (p1[i] - p2[i]);
   }
@@ -99,7 +100,7 @@ pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates
   // 1. Get the projection: i.e. a list of bins b_1,...,b_nb_bins
   // 2. Consider the elements in the bins b_1,.., b_nb_bins up to a fixed budget
   // 3. Output the closest one.
-  if(points_.size() == 0) return {-1, 0.0};
+//  if(points_.size() == 0) return {-1, 0.0};
   vector<int> proj = Project(coordinates);
   int nb_comparisons = 0;
   int id = points_.begin()->first;
@@ -113,16 +114,17 @@ pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates
     for ( auto it = myset.begin(); it != myset.end(); ++it ){
       unordered_map<int, vector<double>>::iterator p;
       p = points_.find(*it);
+      if(p == points_.end()) continue;
       double d = SqrDist(coordinates, p->second);
       if (d < min_dist) {
     	  min_dist = d;
     	  id = p->first;
     	  nb_comparisons++;
       }
-      if (nb_comparisons > running_time) return pair<int,double>(id,min_dist);
+      if (nb_comparisons > running_time) return std::make_pair(id, min_dist);
     }
   }
-  return pair<int,double>(id,min_dist);
+  return std::make_pair(id, min_dist);
 }
 
 // TODO(cohenaddad): Adding deletion

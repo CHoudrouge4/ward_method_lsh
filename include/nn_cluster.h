@@ -29,7 +29,7 @@ public:
   * This function return a nearest neighbour cluster id, distance to query,
   * and the weight of the nearest neighbour.
   */
-  std::tuple<int, double, int> query(const std::vector<double> &query, int query_size, bool itself=false);
+  std::tuple<int, double, int> query(const std::vector<double> &query, int query_size);
 
   /**
   * This function adds a cluster to the data clusters of the clusters of size
@@ -90,5 +90,4 @@ private:
   std::unordered_map<std::pair<int, int>, int> cluster_weight;
   // std::unordered_map<pair_int, int> idx_index;
   std::unordered_map<int, int> id_ds;
-
 };

@@ -21,7 +21,6 @@ private:
   int size;      // store the size of the data
   int last_index; // to keep track of the last index
   double epsilon; // epsilion as it is stated in the main paper.
-  double gamma;   // essentially created to ensure the approximation of the NN
   double max_dist; // the maximum distance between any two points in the dataset
   double min_dist; // the minimum distance between any two points in the dataset
   double beta;     // size * max_dist / min_dist
@@ -30,19 +29,19 @@ private:
 
   bool stop = false;
   int merged_weight;
-  std::vector<double> merged_cluster;
+  point merged_cluster;
   std::vector<std::pair<pair_int, pair_int>> merges;
   std::unordered_map<pair_int, bool> existed;
   std::unordered_set<pair_int> lambda;
   std::unordered_set<pair_int> unmerged_clusters;
   std::vector<std::tuple<pair_int, pair_int, pair_int>> output;
   std::vector<pair_int> to_erase;
-  void merge(std::vector<double> &mu_a, std::vector<double> &mu_b, int size_a, int size_b);
+  void merge(point &mu_a, point &mu_b, int size_a, int size_b);
   std::unordered_set <pair_int> unchecked;
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, double merge_value);
 
 public:
-  hierarchical_clustering(std::vector<std::vector<double>> &data, int n, int d, double epsilon_, int bucket, int bins, int run_time);
+  hierarchical_clustering(std::vector<point> &data, int n, int d, double epsilon_, int bucket, int bins, int run_time);
   std::vector<std::pair<pair_int, pair_int>> get_merges() const;
   void print_merges();
   void build_hierarchy();
