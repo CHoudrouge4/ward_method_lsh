@@ -150,7 +150,7 @@ void hierarchical_clustering::build_hierarchy() {
       the_merged_cluster.clear();
       for(auto&& p: tmp) {
         //existed[p.id] = true;
-        the_merged_cluster.insert(p);
+        if(existed[p.first]) the_merged_cluster.insert(p);
       }
 
    }
