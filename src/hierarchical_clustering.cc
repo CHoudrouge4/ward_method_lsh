@@ -9,11 +9,6 @@
 #include <sstream>
 #include <assert.h>
 
-/**
-* Transform existed from pair to int - done
-*
-*/
-
 #define id first
 #define w second
 
@@ -77,7 +72,6 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
        //to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
-      // std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
        nnc.delete_cluster(u); // we delete the cluster because it is the nn of itself
        assert(u >= 0 && u < 2 * (size + 1) + 1);
 
@@ -100,10 +94,8 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
          std::make_pair(u, u_weight), std::make_pair(nn_id, t_weight)));
 
          last_index = last_index + 1;
-         existed[nn_id] = false;
 
-         //to_erase.push_back({std::get<0>(t), std::get<2>(t)});
-         //std::cout << "nn_id nn_weight " << std::get<0>(t) << ' ' << std::get<2>(t) << std::endl;
+         existed[nn_id] = false;
          nnc.delete_cluster(nn_id);
 
          lambda.erase(u);
@@ -117,7 +109,6 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
           nnc.put_back(res, u);
           existed[u] = true;
         }
-      // should we have these in this place ?
         assert(u_weight <= size);
         if(u_weight >= size) break;
         if(u_weight == 0) break;
@@ -142,7 +133,6 @@ void hierarchical_clustering::build_hierarchy() {
       for(auto&& p: tmp) {
         if(existed[p]) the_merged_cluster.insert(p);
       }
-
    }
 
    if(stop) return;
@@ -152,7 +142,6 @@ void hierarchical_clustering::build_hierarchy() {
   }
 }
 
-// return the merges
 std::vector<std::pair<pair_int, pair_int>> hierarchical_clustering::get_merges() const {
    return merges;
 }

@@ -100,7 +100,7 @@ void LSHDataStructure::RemovePoint(int id){
      if(it == points_.end()){
        std::cout << "#id " << id << std::endl;
        return;
-     } 
+     }
      points_.erase(it);
 
      unordered_map<int,vector<pair<int,int>>>::iterator it_to_bins;
