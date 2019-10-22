@@ -32,13 +32,13 @@ private:
   point merged_cluster;
   std::vector<std::pair<pair_int, pair_int>> merges;
   std::vector<bool> existed;
-  std::unordered_set<pair_int> lambda;
-  std::unordered_set<pair_int> unmerged_clusters;
+  std::unordered_set<int> lambda;
+  std::unordered_set<int> unmerged_clusters;
   std::vector<std::tuple<pair_int, pair_int, pair_int>> output;
-  std::vector<pair_int> to_erase;
+  std::vector<int> to_erase;
   void merge(point &mu_a, point &mu_b, int size_a, int size_b);
-  std::unordered_set <pair_int> unchecked;
-  std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, double merge_value);
+  std::unordered_set <int> unchecked;
+  std::unordered_set<int> helper(std::unordered_set<int> &mp, double merge_value);
 
 public:
   hierarchical_clustering(std::vector<point> &data, int n, int d, double epsilon_, int bucket, int bins, int run_time);

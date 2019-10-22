@@ -29,7 +29,7 @@ void test_nn_cluster() {
   auto p = read_file(file_name, n, m);
   nnCluster nnc(p, n, m, 0.9,1,1,1);
 
-  std::unordered_set<pair_int> unmerged_clusters;
+  std::unordered_set<int> unmerged_clusters;
   std::vector<bool> existed(n * 2, false);
   double dd = nnc.compute_min_dist(unmerged_clusters, existed);
 }

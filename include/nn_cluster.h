@@ -58,7 +58,7 @@ public:
   /**
   * This function computes and returns the minimum distance between all the cluster.
   */
-  double compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::vector<bool> &existed);
+  double compute_min_dist(std::unordered_set<int> &unmerged_clusters, std::vector<bool> &existed);
 
   /**
   * This function computes and returns an approximation of the maximum distance between all the clusters.
@@ -92,7 +92,7 @@ private:
 
   // maps the cluster to its weight, the cluster is uniquely determined by
   // the index of the data structure and its index.
-  std::unordered_map<int, int> cluster_weight;
+  std::vector<int> cluster_weight;
   // std::unordered_map<pair_int, int> idx_index;
   std::unordered_map<int, int> id_ds;
 };
