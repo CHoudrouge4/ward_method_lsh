@@ -87,10 +87,10 @@ void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
 void nnCluster::delete_cluster(int idx) {
   assert(id_ds.find(idx) != id_ds.end());
   int ds = id_ds[idx];
-//  std::cout << "ds index : " << ds << " ind " << idx  << " w: " << cluster_weight[{ds, idx}] << std::endl;
+  // std::cout << "ds index : " << ds << " ind " << idx  << " w: " << cluster_weight[{ds, idx}] << std::endl;
   nn_data_structures[ds].RemovePoint(idx);
 	sizes[ds]--;
-//  std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
+  // std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
   assert(sizes[ds] >= 0);
 }
 
@@ -104,9 +104,12 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
 
     auto t = query(res, 1);
 		min_dis = std::min(2 * std::get<1>(t), min_dis);
+    std::cout << "q: " << i << " nn " <<  std::get<0>(t) << std::endl;
     assert(min_dis > 0);
-		put_back(res, 1);
-		cluster_weight[{0, i}] = 1;
+
+    put_back(res, i);
+
+		cluster_weight[{id_ds[i], i}] = 1;
 
 		unmerged_clusters.insert({i, 1});
 		existed[i] = true; // check it

@@ -70,27 +70,65 @@ void LSHDataStructure::InsertPoint(int id, const vector<double> &coordinates) {
 }
 
 
+// void LSHDataStructure::RemovePoint(int id){
+//     unordered_map<int,vector<double>>::iterator it;
+//     it = points_.find(id);
+//     if(it == points_.end()) {
+//       std::cout << "#id " << id << std::endl;
+//       return;
+//     }
+//     points_.erase(id);
+//
+//     unordered_map<int,vector<pair<int,int>>>::iterator it_to_bins;
+//     it_to_bins = points_to_bins_.find(id);
+//
+//     vector < pair<int,int> > proj =  it_to_bins->second;
+//
+//     for(int i = 0; i < bins_collection_.size(); i++){
+//     	int bin = (proj[i]).first;
+//     	int pos = (proj[i]).second;
+//     	unordered_map<int,unordered_set<int>>::iterator it_bins;
+//     	it_bins = bins_collection_[i].find(bin);
+//     	(it_bins->second).erase(id);
+//     }
+// }
+
+
 void LSHDataStructure::RemovePoint(int id){
-    unordered_map<int,vector<double>>::iterator it;
-    it = points_.find(id);
-    if(it == points_.end()) {
-      std::cout << "#id " << id << std::endl;
-      return;
-    }
-    points_.erase(id);
+     unordered_map<int,vector<double>>::iterator it;
+     it = points_.find(id);
+     if(it == points_.end()){
+       std::cout << "#id " << id << std::endl;
+       return;
+     } 
+     points_.erase(it);
 
-    unordered_map<int,vector<pair<int,int>>>::iterator it_to_bins;
-    it_to_bins = points_to_bins_.find(id);
+     unordered_map<int,vector<pair<int,int>>>::iterator it_to_bins;
+     it_to_bins = points_to_bins_.find(id);
+     if(it_to_bins == points_to_bins_.end()) {
+       std::cout << "#id " << id << std::endl;
+       return;
+     }
+     //
 
-    vector < pair<int,int> > proj =  it_to_bins->second;
+     vector < pair<int,int> > proj =  it_to_bins->second;
 
-    for(int i = 0; i < bins_collection_.size(); i++){
-    	int bin = (proj[i]).first;
-    	int pos = (proj[i]).second;
-    	unordered_map<int,unordered_set<int>>::iterator it_bins;
-    	it_bins = bins_collection_[i].find(bin);
-    	(it_bins->second).erase(id);
-    }
+     for(int i = 0; i < bins_collection_.size(); i++){
+        int bin = (proj[i]).first;
+      //  std::cout << "Erasing: " << id << " in bin " << bin << std::endl;
+        // int pos = (proj[i]).second;
+        unordered_map<int,unordered_set<int>>::iterator it_bins;
+        it_bins = bins_collection_[i].find(bin);
+        (it_bins->second).erase(id);
+        // this is slow
+//        for (int j = 0; j < (it_bins->second).size(); j++){
+//            if((it_bins->second)[j] == id){
+//                (it_bins->second).erase((it_bins->second).begin()+j);
+//                break;/
+//            }
+//    }
+     }
+     points_to_bins_.erase(it_to_bins);
 }
 
 

@@ -291,7 +291,7 @@ def epsilons_perf():
 #for u in labels:
 #    print (u)
 def simple_exp():
-    data_name = ['cancer']
+    data_name = ['iris', 'cancer', 'boston', 'digits']
     for name in data_name:
         print(name)
         data, n, labels, k = get_dataset(name)

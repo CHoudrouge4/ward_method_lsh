@@ -37,8 +37,6 @@ hierarchical_clustering::hierarchical_clustering(std::vector<point> &data, int n
   existed = std::vector<bool>(size * 2, false);
   std::cout << "first min dist " << std::endl;
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
-  std::cout << "second min dist " << std::endl;
-  min_dist =  nnc.compute_min_dist(unmerged_clusters, existed);
   std::cout << "MINIMUM distance: " << min_dist << std::endl;
 
   for (auto && p: unmerged_clusters) lambda.insert(p);
@@ -80,15 +78,16 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        //to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
-       std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
+      // std::cout << "u - u_weight " <<  u << ' ' << u_weight << std::endl;
        nnc.delete_cluster(u); // we delete the cluster because it is the nn of itself
        assert(u >= 0 && u < 2 * (size + 1) + 1);
 
        auto t = nnc.query(res, u_weight);
+       int nn_id = std::get<0>(t);
        double dist  = std::get<1>(t);
        int t_weight = std::get<2>(t);
        if (dist <= merge_value) {
-         auto nn_pt = nnc.get_point(std::get<0>(t));
+         auto nn_pt = nnc.get_point(nn_id);
          merge(res, nn_pt, u_weight, t_weight);
          merged_weight = u_weight + t_weight;
 
@@ -99,17 +98,17 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
          existed[last_index] = true;
          // register the merge operation
          output.push_back(std::make_tuple(std::make_pair(last_index, merged_weight),
-         std::make_pair(u, u_weight), std::make_pair(std::get<0>(t), std::get<2>(t))));
+         std::make_pair(u, u_weight), std::make_pair(nn_id, t_weight)));
 
-         last_index++;
-         existed[std::get<0>(t)] = false;
+         last_index = last_index + 1;
+         existed[nn_id] = false;
 
          //to_erase.push_back({std::get<0>(t), std::get<2>(t)});
          //std::cout << "nn_id nn_weight " << std::get<0>(t) << ' ' << std::get<2>(t) << std::endl;
-         nnc.delete_cluster(std::get<0>(t));
+         nnc.delete_cluster(nn_id);
 
          lambda.erase({u, u_weight});
-         lambda.erase({std::get<0>(t), std::get<2>(t)});
+         lambda.erase({nn_id, t_weight});
 
          if(merged_weight == size) {
            stop = true;
@@ -150,7 +149,7 @@ void hierarchical_clustering::build_hierarchy() {
       if(stop) return;
       the_merged_cluster.clear();
       for(auto&& p: tmp) {
-        existed[p.id] = true;
+        //existed[p.id] = true;
         the_merged_cluster.insert(p);
       }
 
