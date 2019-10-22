@@ -51,7 +51,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 
 	 	auto p = nn_data_structures[i].QueryPoint(query, running_time);
     int tmp_index = p.first;
-		int tmp_size = cluster_weight[{i, p.first}];
+		int tmp_size = cluster_weight[p.first];
     //assert(tmp_size > 0);
     double tmp_dist = distance(query_size, tmp_size, p.second);
     if (tmp_dist <= min_distance) {
@@ -60,7 +60,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
       res_index = i;
 	  }
   }
-  return std::make_tuple(res, min_distance, cluster_weight[{res_index, res}]);
+  return std::make_tuple(res, min_distance, cluster_weight[res]);
 }
 
 // I should add the cluster to the array of points
@@ -69,7 +69,7 @@ void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluste
       id_ds.insert({id, ds});
       nn_data_structures[ds].InsertPoint(id, cluster);
 			sizes[ds]++;
-      cluster_weight[{ds, id}] = cluster_size;
+      cluster_weight[id] = cluster_size;
      // assert(sizes[ds] <= size);
       if(id >= points.size()) points.push_back(cluster);
 }
@@ -110,9 +110,9 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
 
     put_back(res, i);
 
-       cluster_weight[{id_ds[i], i}] = 1;
+    cluster_weight[i] = 1;
 
-      unmerged_clusters.insert({i, 1});
+    unmerged_clusters.insert({i, 1});
 		existed[i] = true; // check it
   }
   return min_dis;
@@ -124,7 +124,7 @@ int nnCluster::get_number_of_data_structures() const {
 }
 
 void nnCluster::update_size(int ds_index, int new_index, int size) {
-	cluster_weight[{ds_index, new_index}] = size;
+	cluster_weight[new_index] = size;
 }
 
 double nnCluster::compute_max_dist(const std::vector<std::vector<double>> &points, const int n, const int d) {

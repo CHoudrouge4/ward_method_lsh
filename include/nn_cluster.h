@@ -69,6 +69,10 @@ public:
 
   void update_size(int ds_index, int new_index, int size);
 
+  int get_cluster_size(const int id) {
+    return cluster_weight[id];
+  }
+
 private:
   std::vector<std::vector<double>> points; // this stores the initial data points
   // size is the number of input points, number of data structures, number of visted leaves
@@ -88,7 +92,7 @@ private:
 
   // maps the cluster to its weight, the cluster is uniquely determined by
   // the index of the data structure and its index.
-  std::unordered_map<std::pair<int, int>, int> cluster_weight;
+  std::unordered_map<int, int> cluster_weight;
   // std::unordered_map<pair_int, int> idx_index;
   std::unordered_map<int, int> id_ds;
 };

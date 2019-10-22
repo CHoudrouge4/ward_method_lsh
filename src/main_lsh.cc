@@ -51,7 +51,7 @@ void compute_matrix_distance(std::vector<std::vector<double>> &data) {
   for (size_t i = 0; i < data.size(); ++i) {
   //  std::cout << i << '\t';
     for (size_t j = i + 1; j < data.size(); ++j) {
-     	if(distance(data[i], data[j]) > 0) 
+     	if(distance(data[i], data[j]) > 0)
 	    min_dist = std::min(distance(data[i], data[j]), min_dist);
     }
 //    std::cout << std::endl;
@@ -80,7 +80,7 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 int main() {
 
   //test_nn_cluster();
-  std::vector<std::string> data_names = {"news_11314_4"};
+  std::vector<std::string> data_names = {"iris", "cancer", "boston", "digits"};
   for (auto&& name : data_names) {
     test_HC(name + ".in", name + ".out", 20);
   }

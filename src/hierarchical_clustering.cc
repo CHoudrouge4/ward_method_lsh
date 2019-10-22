@@ -10,7 +10,7 @@
 #include <assert.h>
 
 /**
-* Transform existed from pair to int
+* Transform existed from pair to int - done
 *
 */
 
