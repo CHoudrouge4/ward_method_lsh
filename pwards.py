@@ -21,7 +21,7 @@ def read_file(file_name):
                 X[i, j] = float(content[j])
         return X
 #X = rand(15000, 2)
-X = read_file("./digits.in")
+X = read_file("./news_11314_4.in")
 print (X.shape)
 n_clusters = 1
 ward = AgglomerativeClustering(n_clusters=n_clusters, linkage='ward', connectivity=None)

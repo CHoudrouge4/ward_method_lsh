@@ -36,7 +36,8 @@ hierarchical_clustering::hierarchical_clustering(std::vector<point> &data, int n
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   existed = std::vector<bool>(size * 2, false);
   std::cout << "first min dist " << std::endl;
-  min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
+  min_dist =  nnc.compute_min_dist(unmerged_clusters, existed);
+//  min_dist = 1000;
   std::cout << "MINIMUM distance: " << min_dist << std::endl;
 
   for (auto && p: unmerged_clusters) lambda.insert(p);
@@ -74,7 +75,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
        int u_weight = p.w;
        existed[p.id] = false;
 
-       assert(u_weight > 0);
+//       assert(u_weight > 0);
        //to_erase.push_back({u, u_weight});
 
        auto res = nnc.get_point(u);
@@ -119,7 +120,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
           existed[p.id] = true;
         }
       // should we have these in this place ?
-        assert(u_weight <= size);
+       // assert(u_weight <= size);
         if(u_weight >= size) break;
         if(u_weight == 0) break;
       }
@@ -140,9 +141,11 @@ void hierarchical_clustering::build_hierarchy() {
   *
   */
   double merge_value;
+  //std::cout << "beta " << beta << std::endl;
   for (int i = 0; i < beta; ++i) {
     if(lambda.size() < 2) return;
     merge_value = pow(1 + epsilon, i); // find an efficient one
+    //std::cout <<"merge value " << merge_value << std::endl;
     auto the_merged_cluster = helper(this->unmerged_clusters, merge_value); // these are the merges
     while (the_merged_cluster.size() > 0) {
       auto tmp = helper(the_merged_cluster, merge_value);

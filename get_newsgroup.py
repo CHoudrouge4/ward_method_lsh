@@ -4,6 +4,7 @@ from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 from sklearn import *
+from sklearn import preprocessing
 
 def get_news_group_pca(size, dimension):
     pca = PCA(n_components=dimension)
@@ -13,9 +14,10 @@ def get_news_group_pca(size, dimension):
     train_data = train_data.todense()
     pca.fit(train_data[:size, :])
     Y = pca.transform(train_data[:size, :])
+    S = 10000.0 * Y
     print(train_data.shape)
-    size, d = Y.shape
-    savetxt('news_' + str(size) + '_' + str(dimension) +'.in', Y[:size, :], delimiter=' ', comments='',  header=str(size) + ' ' + str(d))
+    size, d = S.shape
+    savetxt('news_' + str(size) + '_' + str(dimension) +'.in', S[:size, :], delimiter=' ', comments='',  header=str(size) + ' ' + str(d))
 
 def get_news_group(size):
     newsgroups_train = fetch_20newsgroups(subset='train')
@@ -37,5 +39,5 @@ def generate_sizes():
 #get_news_group(5000)
 
 #generate_sizes()
-get_news_group_pca(11314, 4)
+get_news_group_pca(11314, 100)
 

@@ -22,12 +22,12 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
 	number_of_data_structure = (std::max(nb_ds, 1))  + 5;
 	points = std::vector<std::vector<double>>(points_);
 
-	//std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
-  nn_data_structures.reserve(number_of_data_structure);
+	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
+	nn_data_structures.reserve(number_of_data_structure);
 
 
   sizes = std::vector<int> (number_of_data_structure);
-  assert(sizes.size() == number_of_data_structure);
+  //assert(sizes.size() == number_of_data_structure);
 
 	for (int i = 0; i < number_of_data_structure; ++i) {
 		LSHDataStructure idx(bucket , bins, d);
@@ -52,7 +52,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 	 	auto p = nn_data_structures[i].QueryPoint(query, running_time);
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[{i, p.first}];
-    assert(tmp_size > 0);
+    //assert(tmp_size > 0);
     double tmp_dist = distance(query_size, tmp_size, p.second);
     if (tmp_dist <= min_distance) {
       min_distance = tmp_dist;
@@ -70,7 +70,7 @@ void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluste
       nn_data_structures[ds].InsertPoint(id, cluster);
 			sizes[ds]++;
       cluster_weight[{ds, id}] = cluster_size;
-      assert(sizes[ds] <= size);
+     // assert(sizes[ds] <= size);
       if(id >= points.size()) points.push_back(cluster);
 }
 
@@ -91,7 +91,7 @@ void nnCluster::delete_cluster(int idx) {
   nn_data_structures[ds].RemovePoint(idx);
 	sizes[ds]--;
   // std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
-  assert(sizes[ds] >= 0);
+  //assert(sizes[ds] >= 0);
 }
 
 // good + need review
@@ -103,15 +103,16 @@ double nnCluster::compute_min_dist(std::unordered_set<pair_int> &unmerged_cluste
     delete_cluster(i);
 
     auto t = query(res, 1);
+    if(std::get<1>(t) > 0.0)
 		min_dis = std::min(2 * std::get<1>(t), min_dis);
-    std::cout << "q: " << i << " nn " <<  std::get<0>(t) << std::endl;
-    assert(min_dis > 0);
+//    std::cout << "q: " << i << " nn " <<  std::get<0>(t) << std::endl;
+ //   assert(min_dis > 0);
 
     put_back(res, i);
 
-		cluster_weight[{id_ds[i], i}] = 1;
+       cluster_weight[{id_ds[i], i}] = 1;
 
-		unmerged_clusters.insert({i, 1});
+      unmerged_clusters.insert({i, 1});
 		existed[i] = true; // check it
   }
   return min_dis;

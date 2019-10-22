@@ -16,7 +16,7 @@ std::vector<std::vector<double>> read_file(const std::string file_name, int &n, 
    for (int i = 0; i < n; ++i) {
      for(int j = 0; j < m; ++j) {
        in >> points[i][j];
-       points[i][j] += dis(gen);
+       //points[i][j] *= 10000;// dis(gen);
      }
    }
    in.close();
@@ -43,17 +43,20 @@ double distance(std::vector<double> &p, std::vector<double> &q) {
 }
 
 void compute_matrix_distance(std::vector<std::vector<double>> &data) {
+ // for (size_t i = 0; i < data.size(); ++i) {
+  //  std::cout << '\t' << i;
+ // }
+//  std::cout << std::endl;
+  double min_dist = 1000;
   for (size_t i = 0; i < data.size(); ++i) {
-    std::cout << '\t' << i;
-  }
-  std::cout << std::endl;
-  for (size_t i = 0; i < data.size(); ++i) {
-    std::cout << i << '\t';
-    for (size_t j = 0; j < data.size(); ++j) {
-      std::cout << distance(data[i], data[j]) << '\t';
+  //  std::cout << i << '\t';
+    for (size_t j = i + 1; j < data.size(); ++j) {
+     	if(distance(data[i], data[j]) > 0) 
+	    min_dist = std::min(distance(data[i], data[j]), min_dist);
     }
-    std::cout << std::endl;
+//    std::cout << std::endl;
   }
+  std::cout << "min distance bf " << min_dist << std::endl;
 }
 
 void test_HC(std::string input_file, std::string output_file, double epsilon) {
@@ -61,9 +64,9 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   int n, d;
   auto data = read_file(input_file, n, d);
   std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl;
-  //compute_matrix_distance(data);
-  int bucket = 3;
-  int bins = (int)ceil(std::pow(n, 1/10.0));
+  compute_matrix_distance(data);
+  int bucket = 2;
+  int bins = (int)ceil(std::pow(n, 1/4.0));
   int run_time = 5 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
   std::cout << "start building" << std::endl;
@@ -77,9 +80,9 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 int main() {
 
   //test_nn_cluster();
-  std::vector<std::string> data_names = {"digits"};
+  std::vector<std::string> data_names = {"news_11314_4"};
   for (auto&& name : data_names) {
-    test_HC(name + ".in", name + ".out", 2);
+    test_HC(name + ".in", name + ".out", 20);
   }
   return 0;
 }
