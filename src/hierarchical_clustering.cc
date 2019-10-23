@@ -105,10 +105,6 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
       existed[u] = true;
       nnc.put_back(res, u);
     }
-
-    assert(u_weight <= size);
-    if(u_weight >= size) break;
-    if(u_weight == 0) break;
  }
    return unchecked;
 }

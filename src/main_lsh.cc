@@ -80,7 +80,7 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 int main() {
 
   //test_nn_cluster();
-  std::vector<std::string> data_names = {"iris", "cancer", "boston", "digits"};
+  std::vector<std::string> data_names = {"data20000_0_200_20"};
   for (auto&& name : data_names) {
     test_HC(name + ".in", name + ".out", 20);
   }
