@@ -47,6 +47,8 @@ for d in dimensions:
         file_name = './data' + str(n) + '_' + str(i) + '_' + str(d) + '_' + str(nb_center) + '.in'
         head = str(n) + ' ' + str(d)
         savetxt(file_name, X, delimiter=' ', newline='\n', comments='', header=head)
+        head = str(n)
+        savetxt(file_name + '_labels', y, delimiter=' ', newline='\n', comments='', header=head)
 
 # nb_center = 50
 # centers = generate_random_clusters(nb_center, max_d)
