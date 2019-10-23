@@ -19,7 +19,7 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
 				size(n), dimension(d), epsilon(epsilon_), bucket_size(bucket), nb_bins(bins), running_time(run_time) {
 
 
-  cluster_weight = std::vector<int>(n * 2);
+  cluster_weight = std::vector<int>(n * 4);
 	int nb_ds = (int) ceil(log_base_(n, 1 + epsilon));
 	number_of_data_structure = (std::max(nb_ds, 1))  + 5;
 	points = std::vector<std::vector<double>>(points_);

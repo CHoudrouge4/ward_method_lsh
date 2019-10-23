@@ -27,7 +27,7 @@ void test_nn_cluster() {
   int n, m;
   std::string file_name = "data.in";
   auto p = read_file(file_name, n, m);
-  nnCluster nnc(p, n, m, 0.9,1,1,1);
+  nnCluster nnc(p, n, m, 0.9, 1, 1, 1);
 
   std::unordered_set<int> unmerged_clusters;
   std::vector<bool> existed(n * 2, false);
@@ -66,8 +66,8 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl;
   compute_matrix_distance(data);
   int bucket = 2;
-  int bins = (int)ceil(std::pow(n, 1/4.0));
-  int run_time = 5 * bins;
+  int bins = (int)ceil(std::pow(n, 1/10.0));
+  int run_time = 3 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
   std::cout << "start building" << std::endl;
   clock_t start = clock();
@@ -78,11 +78,9 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 }
 
 int main() {
-
-  //test_nn_cluster();
-  std::vector<std::string> data_names = {"data20000_0_200_20"};
+  std::vector<std::string> data_names = {"data15000_0_200_20"};
   for (auto&& name : data_names) {
-    test_HC(name + ".in", name + ".out", 20);
+    test_HC(name + ".in", name + ".out", 10);
   }
   return 0;
 }

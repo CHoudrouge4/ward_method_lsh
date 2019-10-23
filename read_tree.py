@@ -171,6 +171,23 @@ def app_lsh_ward(data_file, input_file, size):
     clust = clustering.labels_
     print('std_ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
 
+def app_lsh_ward_gen(data_file, input_file, labels_file):
+    data = loadtxt(data_file, skiprows = 1)
+    print (data.shape)
+    labels = loadtxt(labels_file, skiprows = 1, dtype=int)
+    k = len(unique(labels))
+    T = read_file(input_file)
+    print (k)
+    clust = clusters(T, k)
+    print (len(clust))
+    print('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
+    ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+
+    clustering = ward.fit(data)
+    clust = clustering.labels_
+    print('std_ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
+
+
 #
 #         for name in data_sets:
 #             data, n, labels, k = get_dataset(name)
@@ -243,7 +260,7 @@ def readFILE(file_name):
 #                         acc = normalized_mutual_info_score(convert(clust, len(labels)), labels)
 #                         print(str(end - start))
 #                         f.write(str(end - start) + ' ' + str(acc) + ' ')
-#i                     f.write('\n')
+#                         f.write('\n')
 
 #
 #data = readFILE("./data/iris.in")
@@ -289,7 +306,7 @@ def epsilons_perf():
 #tree_sizes_perf()
 #_, _, labels, _ = get_news_group(2)
 #for u in labels:
-#    print (u)
+#   print (u)
 def simple_exp():
     data_name = ['iris', 'cancer', 'boston', 'digits']
     for name in data_name:
@@ -303,5 +320,7 @@ def simple_exp():
         clust = clusters(T, k)
         print('approx' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)))
 
-#app_lsh_ward('news_11314_4.in', 'news_11314_4.out', 11314)
-simple_exp()
+#app_lsh_ward('news_11314_10.in', 'news_11314_10.out', 11314)
+#simple_exp()
+name = 'data15000_0_200_20'
+app_lsh_ward_gen(name + '.in', name + '.out', 'data15000_0_200_20.in_labels')

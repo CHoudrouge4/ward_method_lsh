@@ -2,8 +2,8 @@ from sklearn.datasets.samples_generator import make_blobs
 from random import *
 from numpy import *
 
-range_from = -100
-range_to = 100
+range_from = -10
+range_to = 10
 
 # c is the number of cluster
 # d is the dimension
@@ -35,7 +35,7 @@ def generate_random_clusters(c, d):
 """
 number_of_data = 1
 dimensions = {200}
-max_n = 20000
+max_n = 15000
 nb_center = 20
 for d in dimensions:
     n = max_n
@@ -43,12 +43,12 @@ for d in dimensions:
     for i in range(number_of_data):
         centers = generate_random_clusters(nb_center, d)
         X, y = make_blobs(n_samples=n, n_features=d, centers=centers, cluster_std=0.8, center_box=(range_from, range_to), shuffle=True, random_state=0)
-        random.shuffle(X)
+        #random.shuffle(X)
         file_name = './data' + str(n) + '_' + str(i) + '_' + str(d) + '_' + str(nb_center) + '.in'
         head = str(n) + ' ' + str(d)
         savetxt(file_name, X, delimiter=' ', newline='\n', comments='', header=head)
         head = str(n)
-        savetxt(file_name + '_labels', y, delimiter=' ', newline='\n', comments='', header=head)
+        savetxt(file_name + '_labels', y.astype(int), fmt='%i' , delimiter=' ', newline='\n', comments='', header=head)
 
 # nb_center = 50
 # centers = generate_random_clusters(nb_center, max_d)
