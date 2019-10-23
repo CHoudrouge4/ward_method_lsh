@@ -58,63 +58,58 @@ void hierarchical_clustering::merge(point &mu_a, point &mu_b, int size_a, int si
 std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int> &to_merge, double merge_value) {
   unchecked.clear();
   for (auto&& u : to_merge) {
-     if(!existed[u]) {
-       //std::cout << "here" << std::endl;
-       //to_erase.push_back(p);
-       continue;
+    if(!existed[u]) continue;
+
+    int u_weight = nnc.get_cluster_size(u);
+
+    assert(u_weight <= size);
+    assert(u_weight > 0);
+
+    existed[u] = false;
+
+    auto res = nnc.get_point(u);
+    nnc.delete_cluster(u); // we delete the cluster because it is the nn of itself
+    assert(u >= 0 && u < 2 * (size + 1) + 1);
+
+    auto t = nnc.query(res, u_weight);
+    int nn_id = std::get<0>(t);
+    double dist  = std::get<1>(t);
+    int t_weight = std::get<2>(t);
+    if (dist <= merge_value) {
+     auto nn_pt = nnc.get_point(nn_id);
+     merge(res, nn_pt, u_weight, t_weight);
+     merged_weight = u_weight + t_weight;
+
+     //pair_int mc = std::make_pair(last_index, merged_weight);
+     nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
+     unchecked.insert(last_index);
+     lambda.insert(last_index);
+     existed[last_index] = true;
+     // register the merge operation
+     output.push_back(std::make_tuple(std::make_pair(last_index, merged_weight),
+     std::make_pair(u, u_weight), std::make_pair(nn_id, t_weight)));
+
+     last_index = last_index + 1;
+
+     existed[nn_id] = false;
+     nnc.delete_cluster(nn_id);
+
+     lambda.erase(u);
+     lambda.erase(nn_id);
+
+     if(merged_weight == size) {
+       stop = true;
+       break;
      }
+    } else {
+      existed[u] = true;
+      nnc.put_back(res, u);
+    }
 
-     int u_weight = nnc.get_cluster_size(u);
-     assert(u_weight <= size);
-     if(existed[u] && u_weight < size) {
-       existed[u] = false;
-       assert(u_weight > 0);
-       //to_erase.push_back({u, u_weight});
-
-       auto res = nnc.get_point(u);
-       nnc.delete_cluster(u); // we delete the cluster because it is the nn of itself
-       assert(u >= 0 && u < 2 * (size + 1) + 1);
-
-       auto t = nnc.query(res, u_weight);
-       int nn_id = std::get<0>(t);
-       double dist  = std::get<1>(t);
-       int t_weight = std::get<2>(t);
-       if (dist <= merge_value) {
-         auto nn_pt = nnc.get_point(nn_id);
-         merge(res, nn_pt, u_weight, t_weight);
-         merged_weight = u_weight + t_weight;
-
-         //pair_int mc = std::make_pair(last_index, merged_weight);
-         nnc.add_cluster(merged_cluster, merged_weight, last_index); // it should be added to the points as well
-         unchecked.insert(last_index);
-         lambda.insert(last_index);
-         existed[last_index] = true;
-         // register the merge operation
-         output.push_back(std::make_tuple(std::make_pair(last_index, merged_weight),
-         std::make_pair(u, u_weight), std::make_pair(nn_id, t_weight)));
-
-         last_index = last_index + 1;
-
-         existed[nn_id] = false;
-         nnc.delete_cluster(nn_id);
-
-         lambda.erase(u);
-         lambda.erase(nn_id);
-
-         if(merged_weight == size) {
-           stop = true;
-           break;
-         }
-        } else {
-          nnc.put_back(res, u);
-          existed[u] = true;
-        }
-        assert(u_weight <= size);
-        if(u_weight >= size) break;
-        if(u_weight == 0) break;
-      }
-   }
-
+    assert(u_weight <= size);
+    if(u_weight >= size) break;
+    if(u_weight == 0) break;
+ }
    return unchecked;
 }
 //
