@@ -35,7 +35,6 @@ private:
   std::unordered_set<int> lambda;
   std::unordered_set<int> unmerged_clusters;
   std::vector<std::tuple<pair_int, pair_int, pair_int>> output;
-  std::vector<int> to_erase;
   void merge(point &mu_a, point &mu_b, int size_a, int size_b);
   std::unordered_set <int> unchecked;
   std::unordered_set<int> helper(std::unordered_set<int> &mp, double merge_value);

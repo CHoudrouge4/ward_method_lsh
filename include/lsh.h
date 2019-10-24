@@ -46,7 +46,7 @@ class LSHDataStructure {
   // return the ID (i.e.:the id specified upon insertion)
   // of the elements in the DS that is the ANN
   // Function makes at most running_time comparisons
-    pair<int,double> QueryPoint(const vector<double> &coordinates, int running_time);
+    pair<int,double> QueryPoint(int id_query, const vector<double> &coordinates, int running_time);
 
 
   // remove the point that has been inserted with this id

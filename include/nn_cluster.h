@@ -30,7 +30,7 @@ public:
   * This function return a nearest neighbour cluster id, distance to query,
   * and the weight of the nearest neighbour.
   */
-  std::tuple<int, double, int> query(const std::vector<double> &query, int query_size);
+  std::tuple<int, double, int> query(int q_id, const std::vector<double> &query, int query_size);
 
   /**
   * This function adds a cluster to the data clusters of the clusters of size
@@ -38,11 +38,12 @@ public:
   */
   void add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id);
   void put_back(const std::vector<double> &cluster, const int id);
+  void v_put_back(const int id);
   /**
   * This function deletes a cluseter with the id = idx, and weight = size.
   */
   void delete_cluster(int idx);
-
+  void v_delete_cluster(int idx);
   /**
   * This function returns the coordinates of the centroid with id = idx, and weight = size
   */

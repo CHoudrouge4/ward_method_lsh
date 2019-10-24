@@ -132,36 +132,36 @@ void LSHDataStructure::RemovePoint(int id){
 }
 
 
-pair<int, double> LSHDataStructure::QueryPoint(const vector<double>& coordinates,
-                                    int running_time) {
+pair<int, double> LSHDataStructure::QueryPoint(int id_query, const vector<double>& coordinates, int running_time) {
   // 1. Get the projection: i.e. a list of bins b_1,...,b_nb_bins
   // 2. Consider the elements in the bins b_1,.., b_nb_bins up to a fixed budget
   // 3. Output the closest one.
-//  if(points_.size() == 0) return {-1, 0.0};
   vector<int> proj = Project(coordinates);
   int nb_comparisons = 0;
-  int id = points_.begin()->first;
-  double min_dist = SqrDist(points_.begin()->second, coordinates);
+  int id = -1;
+  double min_dist = std::numeric_limits<double>::infinity();
+  //int id = (points_.begin())->first;
+  //double min_dist = SqrDist(coordinates, (points_.begin())->second);
 
-  unordered_map<int, unordered_set<int>>::iterator it_bin;
+
   for (int i = 0; i < nb_bins_; i++) {
+    unordered_map<int, unordered_set<int>>::iterator it_bin;
     it_bin = bins_collection_[i].find(proj[i]);
     if (it_bin == bins_collection_[i].end()) continue;
     unordered_set<int> myset = (it_bin->second);
     for ( auto it = myset.begin(); it != myset.end(); ++it ){
       unordered_map<int, vector<double>>::iterator p;
       p = points_.find(*it);
-      if(p == points_.end()) continue;
       double d = SqrDist(coordinates, p->second);
-      if (d < min_dist) {
-    	  min_dist = d;
-    	  id = p->first;
-    	  nb_comparisons++;
+      if (d < min_dist && id_query != p->first) {
+	       min_dist = d;
+	       id = p->first;
+	       nb_comparisons++;
       }
-      if (nb_comparisons > running_time) return std::make_pair(id, min_dist);
+      if (nb_comparisons > running_time) return pair<int,double>(id,min_dist);
     }
   }
-  return std::make_pair(id, min_dist);
+  return pair<int,double>(id, min_dist);
 }
 
 // TODO(cohenaddad): Adding deletion
