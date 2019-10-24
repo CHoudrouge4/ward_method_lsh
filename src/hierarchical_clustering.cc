@@ -7,7 +7,7 @@
 #include <tuple>
 #include <utility>
 #include <sstream>
-#include <assert.h>
+//#include <assert.h>
 
 #define id first
 #define w second
@@ -62,15 +62,15 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
      }
 
      int u_weight = nnc.get_cluster_size(u);
-     assert(u_weight <= size);
+    // assert(u_weight <= size);
      if(existed[u] && u_weight < size) {
        existed[u] = false;
-       assert(u_weight > 0);
+       //assert(u_weight > 0);
 
        auto res = nnc.get_point(u);
        nnc.v_delete_cluster(u);
        //nnc.delete_cluster(u);
-       assert(u >= 0 && u < 2 * (size + 1) + 1);
+    //   assert(u >= 0 && u < 2 * (size + 1) + 1);
 
        auto t = nnc.query(u, res, u_weight);
        int nn_id    = std::get<0>(t);
@@ -107,7 +107,7 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
           existed[u] = true;
           nnc.v_put_back(u);
         }
-        assert(u_weight <= size);
+        //assert(u_weight <= size);
         if(u_weight >= size) break;
         if(u_weight == 0) break;
       }
