@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <assert.h>
+//#include <assert.h>
 #include <vector>
 
 // maybe it should be named delta_ess
@@ -29,7 +29,7 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
 
 
   sizes = std::vector<int> (number_of_data_structure);
-  assert(sizes.size() == number_of_data_structure);
+  //assert(sizes.size() == number_of_data_structure);
 
 	for (int i = 0; i < number_of_data_structure; ++i) {
 		LSHDataStructure idx(bucket , bins, d);
@@ -54,7 +54,7 @@ std::tuple<int, double, int> nnCluster::query(const std::vector<double> &query, 
 	 	auto p = nn_data_structures[i].QueryPoint(query, running_time);
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[p.first];
-    assert(tmp_size > 0);
+    //assert(tmp_size > 0);
     double tmp_dist = distance(query_size, tmp_size, p.second);
     if (tmp_dist <= min_distance) {
       min_distance = tmp_dist;
@@ -72,7 +72,7 @@ void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluste
       nn_data_structures[ds].InsertPoint(id, cluster);
 			sizes[ds]++;
       cluster_weight[id] = cluster_size;
-      assert(sizes[ds] <= size);
+      //assert(sizes[ds] <= size);
       if(id >= points.size()) points.push_back(cluster);
 }
 
@@ -87,13 +87,13 @@ void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
 * TO CHANGE
 */
 void nnCluster::delete_cluster(int idx) {
-  assert(id_ds.find(idx) != id_ds.end());
+  //assert(id_ds.find(idx) != id_ds.end());
   int ds = id_ds[idx];
   // std::cout << "ds index : " << ds << " ind " << idx  << " w: " << cluster_weight[{ds, idx}] << std::endl;
   nn_data_structures[ds].RemovePoint(idx);
 	sizes[ds]--;
   // std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
-  assert(sizes[ds] >= 0);
+  //assert(sizes[ds] >= 0);
 }
 
 // good + need review
@@ -108,7 +108,7 @@ double nnCluster::compute_min_dist(std::unordered_set<int> &unmerged_clusters, s
     if(std::get<1>(t) > 0.0)
 		min_dis = std::min(2 * std::get<1>(t), min_dis);
 //    std::cout << "q: " << i << " nn " <<  std::get<0>(t) << std::endl;
-    assert(min_dis > 0);
+  //  assert(min_dis > 0);
 
     put_back(res, i);
 
