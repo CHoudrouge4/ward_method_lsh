@@ -308,7 +308,7 @@ def epsilons_perf():
 #for u in labels:
 #   print (u)
 def simple_exp():
-    data_name = ['iris', 'cancer', 'boston', 'digits']
+    data_name = ['iris', 'cancer', 'digits', 'boston']
     for name in data_name:
         print(name)
         data, n, labels, k = get_dataset(name)
@@ -321,6 +321,6 @@ def simple_exp():
         print('approx' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)))
 
 #app_lsh_ward('news_11314_10.in', 'news_11314_10.out', 11314)
-#simple_exp()
-name = 'data15000_0_200_20'
-app_lsh_ward_gen(name + '.in', name + '.out', 'data15000_0_200_20.in_labels')
+simple_exp()
+#name = 'data15000_0_200_20'
+#app_lsh_ward_gen(name + '.in', name + '.out', 'data15000_0_200_20.in_labels')

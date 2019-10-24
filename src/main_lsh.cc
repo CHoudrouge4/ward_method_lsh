@@ -78,7 +78,7 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 }
 
 int main() {
-  std::vector<std::string> data_names = {"data15000_0_200_20"};
+  std::vector<std::string> data_names = {"iris", "cancer", "digits", "boston"};
   for (auto&& name : data_names) {
     test_HC(name + ".in", name + ".out", 10);
   }

@@ -32,7 +32,7 @@ hierarchical_clustering::hierarchical_clustering(std::vector<point> &data, int n
   existed = std::vector<bool>(size * 2, false);
   std::cout << "first min dist " << std::endl;
   min_dist =  nnc.compute_min_dist(unmerged_clusters, existed);
-  min_dist = 142.495;
+//  min_dist = 142.495;
   std::cout << "MINIMUM distance: " << min_dist << std::endl;
 
   for (auto && p: unmerged_clusters) lambda.insert(p);
