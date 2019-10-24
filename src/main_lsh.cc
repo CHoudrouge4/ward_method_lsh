@@ -66,7 +66,7 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl;
   compute_matrix_distance(data);
   int bucket = 2;
-  int bins = (int)ceil(std::pow(n, 1/4.0));
+  int bins = std::max(2, (int)ceil(std::pow(n, 1/4.0)));
   int run_time = 3 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
   std::cout << "start building" << std::endl;
@@ -78,9 +78,12 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
 }
 
 int main() {
+//  std::vector<std::string> data_names = {"1000", "2000", "5000", "11314"};
   std::vector<std::string> data_names = {"iris", "cancer", "digits", "boston"};
-  for (auto&& name : data_names) {
-    test_HC(name + ".in", name + ".out", 2);
+  for (auto&& name: data_names) {
+  //  std::string name = "news_" + n + "_100";
+  //std::string name = "iris";
+    test_HC(name + ".in", name + ".out", 10);
   }
   return 0;
 }

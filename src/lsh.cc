@@ -57,10 +57,10 @@ void LSHDataStructure::InsertPoint(int id, const vector<double> &coordinates) {
       (it_bin->second).insert(id);
       pos = (it_bin->second).size()-1;
     } else {
-	unordered_set<int> new_bin;
-	//vector<int> new_bin;
-	new_bin.insert(id);
-	bins_collection_[i].insert(pair<int, unordered_set<int>>(proj[i], new_bin));
+    	unordered_set<int> new_bin;
+    	//vector<int> new_bin;
+    	new_bin.insert(id);
+    	bins_collection_[i].insert(pair<int, unordered_set<int>>(proj[i], new_bin));
     }
     proj_with_id.push_back(pair<int, int > (proj[i], pos));
   }
@@ -142,18 +142,19 @@ pair<int, double> LSHDataStructure::QueryPoint(int id_query, const vector<double
   double min_dist = std::numeric_limits<double>::infinity();
   //int id = (points_.begin())->first;
   //double min_dist = SqrDist(coordinates, (points_.begin())->second);
-
+  //std::cout << "nb_points " << points_.size() << std::endl;
 
   for (int i = 0; i < nb_bins_; i++) {
     unordered_map<int, unordered_set<int>>::iterator it_bin;
     it_bin = bins_collection_[i].find(proj[i]);
     if (it_bin == bins_collection_[i].end()) continue;
+    //std::cout << "hela hela ho" << std::endl;
     unordered_set<int> myset = (it_bin->second);
     for ( auto it = myset.begin(); it != myset.end(); ++it ){
       unordered_map<int, vector<double>>::iterator p;
       p = points_.find(*it);
       double d = SqrDist(coordinates, p->second);
-      if (d < min_dist && id_query != p->first) {
+      if (d <= min_dist && id_query != p->first) {
 	       min_dist = d;
 	       id = p->first;
 	       nb_comparisons++;

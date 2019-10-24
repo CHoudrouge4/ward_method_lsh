@@ -20,10 +20,10 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
 
   cluster_weight = std::vector<int>(n * 4);
 	int nb_ds = (int) ceil(log_base_(n, 1 + epsilon));
-	number_of_data_structure = (std::max(nb_ds, 1))  + 5;
+	number_of_data_structure = (std::max(nb_ds, 1)) * 2 + 5;
 	points = std::vector<std::vector<double>>(points_);
 
-	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
+//	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
 	nn_data_structures.reserve(number_of_data_structure);
 
   sizes = std::vector<int> (number_of_data_structure);
@@ -49,7 +49,7 @@ std::tuple<int, double, int> nnCluster::query(int q_id, const std::vector<double
     if (sizes[i] <= 0) continue;
 
 	 	auto p = nn_data_structures[i].QueryPoint(q_id, query, running_time);
-    //std::cout << i << ' ' << p.first << std::endl;
+  //  std::cout << i << ' ' << p.first << std::endl;
     if (p.first == -1) continue;
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[p.first];
@@ -75,13 +75,13 @@ void nnCluster::add_cluster(const std::vector<double> &cluster, const int cluste
       if(id >= points.size()) points.push_back(cluster);
 }
 
-void nnCluster::put_back(const std::vector<double> &cluster, const int id) {
+void nnCluster::put_back(const std::vector<double> &cluster, int id) {
   int ds = id_ds[id];
   nn_data_structures[ds].InsertPoint(id, cluster);
   if(id >= points.size()) points.push_back(cluster);
 }
 
-void nnCluster::v_put_back(const int id) {
+void nnCluster::v_put_back(int id) {
   int ds = id_ds[id];
   sizes[ds]++;
 }
@@ -93,17 +93,15 @@ void nnCluster::delete_cluster(int idx) {
   //assert(id_ds.find(idx) != id_ds.end());
   int ds = id_ds[idx];
   nn_data_structures[ds].RemovePoint(idx);
-  std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
+//  std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
   //assert(sizes[ds] >= 0);
 }
 
 void nnCluster::v_delete_cluster(int idx) {
   //assert(id_ds.find(idx) != id_ds.end());
   int ds = id_ds[idx];
-  // std::cout << "ds index : " << ds << " ind " << idx  << " w: " << cluster_weight[{ds, idx}] << std::endl;
-  //nn_data_structures[ds].RemovePoint(idx);
   sizes[ds]--;
-  // std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
+//  std::cout << "sizes "<< ds << ' ' << sizes[ds] << std::endl;
   //assert(sizes[ds] >= 0);
 }
 

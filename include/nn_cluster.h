@@ -37,8 +37,8 @@ public:
   * cluster size
   */
   void add_cluster(const std::vector<double> &cluster, const int cluster_size, const int id);
-  void put_back(const std::vector<double> &cluster, const int id);
-  void v_put_back(const int id);
+  void put_back(const std::vector<double> &cluster, int id);
+  void v_put_back(int id);
   /**
   * This function deletes a cluseter with the id = idx, and weight = size.
   */

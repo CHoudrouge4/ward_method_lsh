@@ -27,7 +27,7 @@ hierarchical_clustering::hierarchical_clustering(std::vector<point> &data, int n
                                                                epsilon(epsilon_) {
   merged_cluster = point(dimension);
   last_index = data.size();
-  max_dist = nnc.compute_max_dist(data, n, d);
+  max_dist = 10 * nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   existed = std::vector<bool>(size * 2, false);
   std::cout << "first min dist " << std::endl;
@@ -63,20 +63,21 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
 
      int u_weight = nnc.get_cluster_size(u);
     // assert(u_weight <= size);
-     if(existed[u] && u_weight < size) {
+     if(u >= 0 && existed[u] && u_weight < size) {
        existed[u] = false;
        //assert(u_weight > 0);
 
        auto res = nnc.get_point(u);
        nnc.v_delete_cluster(u);
-       //nnc.delete_cluster(u);
-    //   assert(u >= 0 && u < 2 * (size + 1) + 1);
 
+       //nnc.delete_cluster(u);
+       //assert(u >= 0 && u < 2 * (size + 1) + 1);
        auto t = nnc.query(u, res, u_weight);
        int nn_id    = std::get<0>(t);
        double dist  = std::get<1>(t);
        int t_weight = std::get<2>(t);
-       if (dist <= merge_value) {
+    //   std::cout << "nn_id " << nn_id << " u " << u << std::endl;
+       if (nn_id >= 0 && dist <= merge_value) {
          auto nn_pt = nnc.get_point(nn_id);
          merge(res, nn_pt, u_weight, t_weight);
          merged_weight = u_weight + t_weight;
@@ -98,14 +99,41 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
 
          lambda.erase(u);
          lambda.erase(nn_id);
+      //   std::cout << "lambda size " << lambda.size() << std::endl;
+         if (lambda.size() == 2) {
+           int first = 0;
+           int sec = 0;
+           int i = 0;
+           for(auto&& e : lambda) {
+             if(i == 0) first = e;
+             if(i == 1) sec = e;
+             i++;
+           }
+        //   std::cout << "first " << first << " second " << sec << std::endl;
+           int f_weight = nnc.get_cluster_size(first);
+           int s_weight = nnc.get_cluster_size(sec);
+           existed[first] = false;
+           existed[sec] = false;
+           merged_weight = f_weight + s_weight;
+           output.push_back(std::make_tuple(std::make_pair(last_index, merged_weight),
+                            std::make_pair(first, f_weight), std::make_pair(sec, s_weight)));
+
+            lambda.erase(first);
+            lambda.erase(sec);
+            lambda.insert(last_index);
+            unchecked.insert(last_index);
+            last_index++;
+         }
+
 
          if(merged_weight == size) {
            stop = true;
            break;
          }
         } else {
-          existed[u] = true;
           nnc.v_put_back(u);
+          nnc.put_back(res, u);
+          existed[u] = true;
         }
         //assert(u_weight <= size);
         if(u_weight >= size) break;
@@ -119,8 +147,8 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
 void hierarchical_clustering::build_hierarchy() {
   double merge_value;
   //std::cout << "beta " << beta << std::endl;
-  for (int i = 0; i <= beta; ++i) {
-    //if(lambda.size() < 2) return;
+  for (int i = 0; i <= 2 * beta; ++i) {
+    if(lambda.size() < 2) return;
     merge_value = pow(1 + epsilon, i); // find an efficient one
     //std::cout <<"merge value " << merge_value << std::endl;
     auto the_merged_cluster = helper(this->unmerged_clusters, merge_value); // these are the merges
@@ -133,9 +161,9 @@ void hierarchical_clustering::build_hierarchy() {
       }
    }
 
-   if(stop) return;
-   if(the_merged_cluster.size() == 1) unmerged_clusters.insert(*the_merged_cluster.begin());
-   for(auto&& m: lambda) unmerged_clusters.insert(m);
+   if (stop) return;
+   if (the_merged_cluster.size() == 1) unmerged_clusters.insert(*the_merged_cluster.begin());
+   for (auto&& m: lambda) unmerged_clusters.insert(m);
   }
 }
 
