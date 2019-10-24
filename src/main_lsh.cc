@@ -16,7 +16,7 @@ std::vector<std::vector<double>> read_file(const std::string file_name, int &n, 
    for (int i = 0; i < n; ++i) {
      for(int j = 0; j < m; ++j) {
        in >> points[i][j];
-       //points[i][j] *= 10000;// dis(gen);
+       points[i][j] += dis(gen);
      }
    }
    in.close();
@@ -65,23 +65,23 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   auto data = read_file(input_file, n, d);
   std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl;
   compute_matrix_distance(data);
-  int bucket = 2;
-  int bins = std::max(2, (int)ceil(std::pow(n, 1/4.0)));
+  int bucket = 4;
+  int bins = 10; //std::max(2, (int)ceil(std::pow(n, 1/2.0)));
   int run_time = 3 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
   std::cout << "start building" << std::endl;
   clock_t start = clock();
-  hc.build_hierarchy();
+//  hc.build_hierarchy();
   clock_t end = clock();
-  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
-  hc.print_file(output_file);
+//  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+  //hc.print_file(output_file);
 }
 
 int main() {
-//  std::vector<std::string> data_names = {"1000", "2000", "5000", "11314"};
-  std::vector<std::string> data_names = {"iris", "cancer", "digits", "boston"};
-  for (auto&& name: data_names) {
-  //  std::string name = "news_" + n + "_100";
+	 std::vector<std::string> data_names = {"1000"};
+//  std::vector<std::string> data_names = {"iris", "cancer", "digits", "boston"};
+  for (auto&& n: data_names) {
+    std::string name = "news_" + n + "_200";
   //std::string name = "iris";
     test_HC(name + ".in", name + ".out", 10);
   }

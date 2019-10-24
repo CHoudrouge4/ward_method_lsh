@@ -39,4 +39,7 @@ def generate_sizes():
 #get_news_group(5000)
 
 #generate_sizes()
-get_news_group_pca(11314, 10)
+sizes = [1000, 2000, 5000, 11314]
+for s in sizes:
+    get_news_group_pca(s, 200)
+
