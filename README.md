@@ -13,5 +13,7 @@
 ## Compilation
 On Ubuntu and other Linux-based systems:
 Inside the directory.
+
  `cmake .`
+
  `make`
