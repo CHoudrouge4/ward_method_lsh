@@ -30,10 +30,10 @@ hierarchical_clustering::hierarchical_clustering(std::vector<point> &data, int n
   max_dist = 10 * nnc.compute_max_dist(data, n, d);
   unmerged_clusters.max_load_factor(std::numeric_limits<double>::infinity());
   existed = std::vector<bool>(size * 2, false);
-  std::cout << "first min dist " << std::endl;
+  //std::cout << "first min dist " << std::endl;
   min_dist =  nnc.compute_min_dist(unmerged_clusters, existed);
-  min_dist = 1000;
-  std::cout << "MINIMUM distance: " << min_dist << std::endl;
+  //min_dist = 1000;
+  //std::cout << "MINIMUM distance: " << min_dist << std::endl;
 
   for (auto && p: unmerged_clusters) lambda.insert(p);
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / double
@@ -69,8 +69,7 @@ std::unordered_set<int>  hierarchical_clustering::helper(std::unordered_set<int>
 
        auto res = nnc.get_point(u);
        nnc.v_delete_cluster(u);
-
-       //nnc.delete_cluster(u);
+       nnc.delete_cluster(u);
        //assert(u >= 0 && u < 2 * (size + 1) + 1);
        auto t = nnc.query(u, res, u_weight);
        int nn_id    = std::get<0>(t);

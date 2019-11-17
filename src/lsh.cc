@@ -98,7 +98,7 @@ void LSHDataStructure::RemovePoint(int id){
      unordered_map<int,vector<double>>::iterator it;
      it = points_.find(id);
      if(it == points_.end()){
-       std::cout << "#id " << id << std::endl;
+       //std::cout << "#id " << id << std::endl;
        return;
      }
      points_.erase(id);
@@ -106,7 +106,7 @@ void LSHDataStructure::RemovePoint(int id){
      unordered_map<int,vector<pair<int,int>>>::iterator it_to_bins;
      it_to_bins = points_to_bins_.find(id);
      if(it_to_bins == points_to_bins_.end()) {
-       std::cout << "#id " << id << std::endl;
+       //std::cout << "#id " << id << std::endl;
        return;
      }
      //
@@ -141,7 +141,7 @@ pair<int, double> LSHDataStructure::QueryPoint(int id_query, const vector<double
   //int id = -1;
   //double min_dist = std::numeric_limits<double>::infinity();
   int id = (points_.begin())->first;
-  std::cout << "initial id " << id << std::endl; 
+  //std::cout << "initial id " << id << std::endl;
   double min_dist = SqrDist(coordinates, (points_.begin())->second);
   //std::cout << "nb_points " << points_.size() << std::endl;
 
@@ -163,7 +163,6 @@ pair<int, double> LSHDataStructure::QueryPoint(int id_query, const vector<double
       if (nb_comparisons > running_time) return pair<int,double>(id,min_dist);
     }
   }
-  std::cout << points_.size() << ' ' << id << ' ' << id_query << std::endl;
   return pair<int,double>(id, min_dist);
 }
 

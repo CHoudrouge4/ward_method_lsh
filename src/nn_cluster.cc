@@ -23,11 +23,9 @@ nnCluster::nnCluster(std::vector<std::vector<double>> &points_, int n, int d, do
 	number_of_data_structure = (std::max(nb_ds, 1)) * 2 + 5;
 	points = std::vector<std::vector<double>>(points_);
 
-//	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
 	nn_data_structures.reserve(number_of_data_structure);
 
   sizes = std::vector<int> (number_of_data_structure);
-  //assert(sizes.size() == number_of_data_structure);
 
 	for (int i = 0; i < number_of_data_structure; ++i) {
 		LSHDataStructure idx(bucket , bins, d);
@@ -49,7 +47,6 @@ std::tuple<int, double, int> nnCluster::query(int q_id, const std::vector<double
     if (sizes[i] <= 0) continue;
 
 	 	auto p = nn_data_structures[i].QueryPoint(q_id, query, running_time);
-  //  std::cout << i << ' ' << p.first << std::endl;
     if (p.first == -1) continue;
     int tmp_index = p.first;
 		int tmp_size = cluster_weight[p.first];

@@ -43,18 +43,13 @@ double distance(std::vector<double> &p, std::vector<double> &q) {
 }
 
 void compute_matrix_distance(std::vector<std::vector<double>> &data) {
- // for (size_t i = 0; i < data.size(); ++i) {
-  //  std::cout << '\t' << i;
- // }
-//  std::cout << std::endl;
+
   double min_dist = 1000;
   for (size_t i = 0; i < data.size(); ++i) {
-  //  std::cout << i << '\t';
     for (size_t j = i + 1; j < data.size(); ++j) {
      	if(distance(data[i], data[j]) > 0)
 	    min_dist = std::min(distance(data[i], data[j]), min_dist);
     }
-//    std::cout << std::endl;
   }
   std::cout << "min distance bf " << min_dist << std::endl;
 }
@@ -66,24 +61,22 @@ void test_HC(std::string input_file, std::string output_file, double epsilon) {
   std::cout << "data dimension " << data.size() << ' ' << data[0].size() << std::endl;
   compute_matrix_distance(data);
   int bucket = 4;
-  int bins = 10; //std::max(2, (int)ceil(std::pow(n, 1/2.0)));
+  int bins = std::max(2, (int)ceil(std::pow(n, 1/2.0)));
   int run_time = 3 * bins;
   hierarchical_clustering hc(data, n, d, epsilon, bucket, bins, run_time);
   std::cout << "start building" << std::endl;
   clock_t start = clock();
-//  hc.build_hierarchy();
+  hc.build_hierarchy();
   clock_t end = clock();
-//  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
-  //hc.print_file(output_file);
+  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+  hc.print_file(output_file);
 }
 
 int main() {
-	 std::vector<std::string> data_names = {"1000"};
-//  std::vector<std::string> data_names = {"iris", "cancer", "digits", "boston"};
+	// std::vector<std::string> data_names = {"1000"};
+  std::vector<std::string> data_names = {"iris", "cancer", "digits", "boston"};
   for (auto&& n: data_names) {
-    std::string name = "news_" + n + "_200";
-  //std::string name = "iris";
-    test_HC(name + ".in", name + ".out", 10);
+    test_HC(n + ".in", n + ".out", 10);
   }
   return 0;
 }

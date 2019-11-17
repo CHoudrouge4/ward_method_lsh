@@ -320,10 +320,10 @@ def simple_exp():
         clust = clusters(T, k)
         print('approx' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)))
 
-sizes = [1000, 2000, 5000, 11314]
-for e in sizes:
-    app_lsh_ward('news_' + str(e) + '_200.in', 'news_' + str(e) + '_200.out', e)
-    
-#simple_exp()
+# sizes = [1000, 2000, 5000, 11314]
+# for e in sizes:
+#     app_lsh_ward('news_' + str(e) + '_200.in', 'news_' + str(e) + '_200.out', e)
+
+simple_exp()
 #name = 'data15000_0_200_20'
 #app_lsh_ward_gen(name + '.in', name + '.out', 'data15000_0_200_20.in_labels')
